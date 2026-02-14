@@ -60,6 +60,29 @@ enum NotificationType {
   ROUTE
 }
 
+// ==================== PBI #16: Account Removal ====================
+enum UserStatus {
+  ACTIVE
+  PENDING_DELETION
+  DELETED
+}
+
+enum DeletionRequestStatus {
+  PENDING
+  VERIFIED
+  COMPLETED
+  CANCELLED
+}
+
+enum DeleteReason {
+  NOT_USING_ANYMORE       // ไม่ได้ใช้งานแล้ว
+  PRIVACY_CONCERN         // กังวลเรื่องความเป็นส่วนตัว
+  FOUND_ALTERNATIVE       // ใช้แอปอื่นแทน
+  BAD_EXPERIENCE          // ประสบการณ์ไม่ดี
+  TOO_MANY_NOTIFICATIONS  // แจ้งเตือนเยอะเกินไป
+  OTHER                   // เหตุผลอื่น
+}
+
 model User {
   id                    String   @id @default(cuid())
   username              String   @unique
@@ -83,16 +106,26 @@ model User {
   updatedAt             DateTime @updatedAt
   passengerSuspendedUntil DateTime?
   driverSuspendedUntil    DateTime?
+  
+  // PBI #16: Account Removal fields
+  status                UserStatus @default(ACTIVE)
+  deletedAt             DateTime?
+  scheduledDeleteAt     DateTime?
+  deleteReason          DeleteReason?
+  
   driverVerification    DriverVerification?
   vehicles              Vehicle[]
   notification          Notification[]
   createdRoutes         Route[]             @relation("DriverRoutes")
   bookings              Booking[]           @relation("PassengerBookings")
+  deletionRequests      DeletionRequest[]
 
   @@index([role])
   @@index([isActive])
   @@index([isVerified])
   @@index([createdAt])
+  @@index([status])
+  @@index([scheduledDeleteAt])
 }
 
 model DriverVerification {
@@ -210,4 +243,76 @@ model Booking {
   pickupLocation  Json          @db.Json
   dropoffLocation Json          @db.Json
   createdAt       DateTime      @default(now())
+}
+
+// ==================== PBI #16: Deletion Request ====================
+model DeletionRequest {
+  id            String                @id @default(cuid())
+  userId        String
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reason        DeleteReason?
+  otherReason   String?               // ถ้าเลือก OTHER ให้กรอกเหตุผลเพิ่ม
+  otpCode       String?
+  otpRef        String?
+  otpExpiresAt  DateTime?
+  otpAttempts   Int                   @default(0)
+  status        DeletionRequestStatus @default(PENDING)
+  requestedAt   DateTime              @default(now())
+  verifiedAt    DateTime?
+  completedAt   DateTime?
+  cancelledAt   DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@index([requestedAt])
+}
+
+// ==================== Activity Log (พ.ร.บ.คอมพิวเตอร์ฯ มาตรา 26 - เก็บ 90 วัน) ====================
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  REGISTER
+  PASSWORD_CHANGE
+  PROFILE_UPDATE
+  BOOKING_CREATE
+  BOOKING_CANCEL
+  ROUTE_CREATE
+  ROUTE_CANCEL
+  PAYMENT
+  ACCOUNT_DELETE_REQUEST
+  ACCOUNT_DELETE_CONFIRM
+  ACCOUNT_DELETE_CANCEL
+  DRIVER_VERIFICATION
+  EMERGENCY_REQUEST
+  REPORT_SUBMIT
+}
+
+model ActivityLog {
+  id            String       @id @default(cuid())
+  
+  // User reference (nullable เพราะ user อาจถูกลบแล้ว)
+  userId        String?
+  userEmail     String?      // เก็บ email ไว้เผื่อ user ถูกลบ
+  
+  // Activity info
+  activityType  ActivityType
+  description   String?
+  metadata      Json?        @db.Json
+  
+  // Connection info (ตาม พ.ร.บ.คอมพิวเตอร์ฯ)
+  ipAddress     String?
+  userAgent     String?
+  deviceInfo    String?
+  
+  // Timestamps
+  createdAt     DateTime     @default(now())
+  
+  // สำหรับ scheduled deletion (90 วันหลังจาก user ถูกลบ)
+  scheduledLogDeleteAt DateTime?
+
+  @@index([userId])
+  @@index([userEmail])
+  @@index([activityType])
+  @@index([createdAt])
+  @@index([scheduledLogDeleteAt])
 }

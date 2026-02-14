@@ -44,6 +44,18 @@
                     </li>
                 </ul>
             </div>
+            <!-- PBI #16: Account Deletion -->
+            <div class="pt-4 mt-4 border-t border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900 mb-2 px-4">โซนอันตราย</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <NuxtLink to="/profile/delete-account" class="block px-4 py-2 text-sm rounded-md"
+                            :class="isActive('/profile/delete-account') ? 'font-semibold text-red-600 bg-red-100' : 'text-red-600 hover:bg-red-50'">
+                             ลบบัญชีของฉัน
+                        </NuxtLink>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </aside>
 </template>

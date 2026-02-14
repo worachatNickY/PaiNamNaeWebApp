@@ -13,8 +13,17 @@ const login = asyncHandler(async (req, res) => {
         user = await userService.getUserByUsername(username);
     }
 
+    // ตรวจสอบสถานะบัญชี
     if (user && !user.isActive) {
-        throw new ApiError(401, "Your account has been deactivated.");
+        // ถ้าอยู่ในสถานะรอลบ ยังให้ login ได้ (เพื่อยกเลิกการลบ)
+        if (user.status !== 'PENDING_DELETION') {
+            throw new ApiError(401, "Your account has been deactivated.");
+        }
+    }
+    
+    // ถ้าถูกลบถาวรแล้ว
+    if (user && user.status === 'DELETED') {
+        throw new ApiError(401, "This account has been permanently deleted.");
     }
 
     const passwordIsValid = user ? await userService.comparePassword(user, password) : false;

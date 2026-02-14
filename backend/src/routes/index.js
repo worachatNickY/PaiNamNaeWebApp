@@ -7,6 +7,8 @@ const driverVerifRoutes = require('./driverVerification.routes');
 const bookingRoutes = require('./booking.routes');
 const notificationRoutes = require('./notification.routes')
 const mapRoutes = require('./maps.routes')
+const accountRoutes = require('./account.routes'); // PBI #16
+const activityLogRoutes = require('./activityLog.routes'); // Activity Log (Admin)
 
 const router = express.Router();
 
@@ -18,5 +20,7 @@ router.use('/driver-verifications', driverVerifRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/api/maps', mapRoutes);
+router.use('/account', accountRoutes); // PBI #16: Account Deletion
+router.use('/activity-logs', activityLogRoutes); // Activity Log (Admin)
 
 module.exports = router;
