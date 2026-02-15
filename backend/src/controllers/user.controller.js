@@ -146,6 +146,25 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * @desc    Search users (for report driver feature)
+ * @route   GET /api/users/search
+ * @access  Private
+ */
+const searchUsers = asyncHandler(async (req, res) => {
+    const { q, role } = req.query;
+    
+    if (!q || q.length < 2) {
+        return res.json({ success: true, data: [] });
+    }
+
+    const users = await userService.searchUsersSimple(q, role);
+    res.json({
+        success: true,
+        data: users
+    });
+});
+
 const setUserStatus = asyncHandler(async (req, res) => {
     const { isActive, isVerified } = req.body
 
@@ -207,5 +226,5 @@ module.exports = {
     adminUpdateUser,
     adminDeleteUser,
     setUserStatus,
-
+    searchUsers,
 };

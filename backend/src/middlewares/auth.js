@@ -40,4 +40,12 @@ const requireAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, requireAdmin };
+const requireDriver = (req, res, next) => {
+    if (req.user && (req.user.role === 'DRIVER' || req.user.role === 'ADMIN')) {
+        next();
+    } else {
+        throw new ApiError(403, 'Forbidden: Driver access required');
+    }
+};
+
+module.exports = { protect, requireAdmin, requireDriver };

@@ -42,6 +42,36 @@
                             ข้อมูลรถยนต์ของฉัน
                         </NuxtLink>
                     </li>
+                    <li>
+                        <NuxtLink to="/profile/emergency-contacts" class="block px-4 py-2 text-sm rounded-md"
+                            :class="isActive('/profile/emergency-contacts') ? 'font-semibold text-blue-600 bg-blue-100' : 'text-gray-700 hover:bg-gray-100'">
+                            ผู้ติดต่อฉุกเฉิน
+                        </NuxtLink>
+                    </li>
+                    <li v-if="isDriver">
+                        <NuxtLink to="/profile/driver-reports" class="block px-4 py-2 text-sm rounded-md"
+                            :class="isActive('/profile/driver-reports') ? 'font-semibold text-blue-600 bg-blue-100' : 'text-gray-700 hover:bg-gray-100'">
+                            รายงานเกี่ยวกับฉัน
+                        </NuxtLink>
+                    </li>
+                </ul>
+            </div>
+            <!-- PBI #13: Report Driver -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900 mb-2 px-4">ความช่วยเหลือ</h3>
+                <ul class="space-y-1">
+                    <li>
+                        <NuxtLink to="/report-driver" class="block px-4 py-2 text-sm rounded-md"
+                            :class="isActive('/report-driver') ? 'font-semibold text-blue-600 bg-blue-100' : 'text-gray-700 hover:bg-gray-100'">
+                            รายงานปัญหาคนขับ
+                        </NuxtLink>
+                    </li>
+                    <li>
+                        <NuxtLink to="/profile/my-reports" class="block px-4 py-2 text-sm rounded-md"
+                            :class="isActive('/profile/my-reports') ? 'font-semibold text-blue-600 bg-blue-100' : 'text-gray-700 hover:bg-gray-100'">
+                            รายงานของฉัน
+                        </NuxtLink>
+                    </li>
                 </ul>
             </div>
             <!-- PBI #16: Account Deletion -->
@@ -62,8 +92,15 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const route = useRoute();
+const { user } = useAuth();
+
+// Check if user is a driver
+const isDriver = computed(() => {
+    return user.value?.role === 'DRIVER' || user.value?.role === 'ADMIN';
+});
 
 // Function to check if a menu item is active
 const isActive = (path) => {

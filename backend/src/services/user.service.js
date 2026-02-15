@@ -207,6 +207,40 @@ const deleteUser = async (id) => {
     return safeDeletedUser;
 };
 
+/**
+ * Simple search for users (used in report driver feature)
+ */
+const searchUsersSimple = async (query, role = null) => {
+    const where = {
+        isActive: true,
+        OR: [
+            { username: { contains: query, mode: 'insensitive' } },
+            { firstName: { contains: query, mode: 'insensitive' } },
+            { lastName: { contains: query, mode: 'insensitive' } },
+        ]
+    };
+
+    if (role) {
+        where.role = role;
+    }
+
+    const users = await prisma.user.findMany({
+        where,
+        select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+            role: true
+        },
+        take: 10,
+        orderBy: { firstName: 'asc' }
+    });
+
+    return users;
+};
+
 // const setUserStatusActive = async (id, isActive) => {
 //     const updatedUser = await prisma.user.update({
 //         where: { id },
@@ -229,6 +263,7 @@ const deleteUser = async (id) => {
 
 module.exports = {
     searchUsers,
+    searchUsersSimple,
     getAllUsers,
     getUserById,
     createUser,

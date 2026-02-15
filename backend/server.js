@@ -16,8 +16,7 @@ const ensureAdmin = require('./src/bootstrap/ensureAdmin');
 const app = express();
 promClient.collectDefaultMetrics();
 
-app.use(helmet());
-
+// CORS must be before helmet
 const corsOptions = {
     origin: ['http://localhost:3001',
         'https://amazing-crisp-9bcb1a.netlify.app'],
@@ -28,6 +27,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // เปิดรับ preflight สำหรับทุก route
+
+app.use(helmet());
 
 app.use(express.json());
 

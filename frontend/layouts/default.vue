@@ -205,14 +205,28 @@
                                 </svg>
                             </div>
                             <div
-                                class="absolute right-0 w-40 py-2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg dropdown-menu top-full user-dropdown-arrow">
+                                class="absolute right-0 w-48 py-2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg dropdown-menu top-full user-dropdown-arrow">
                                 <NuxtLink to="/profile"
-                                    class="flex items-center block w-full px-4 py-2 text-left text-gray-700 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600">
+                                    class="flex items-center w-full gap-2 px-4 py-2 text-left text-gray-700 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
                                     บัญชีของฉัน
                                 </NuxtLink>
+                                <NuxtLink to="/report-driver"
+                                    class="flex items-center w-full gap-2 px-4 py-2 text-left text-orange-600 transition-colors duration-200 hover:bg-orange-50 hover:text-orange-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                    </svg>
+                                    รายงานปัญหา
+                                </NuxtLink>
+                                <div class="my-1 border-t border-gray-200"></div>
                                 <button @click="logout"
-                                    class="flex items-center block w-full px-4 py-2 text-left text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700">
-                                    Logout
+                                    class="flex items-center w-full gap-2 px-4 py-2 text-left text-red-600 transition-colors duration-200 hover:bg-red-50 hover:text-red-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    ออกจากระบบ
                                 </button>
                             </div>
                         </div>
@@ -347,12 +361,25 @@
                             </div>
                             <div class="mt-1 ml-6">
                                 <NuxtLink to="/profile" @click="closeMobileMenu"
-                                    class="flex items-center block w-full px-3 py-2 text-left text-gray-600 transition-colors duration-200 rounded-md hover:bg-blue-50 hover:text-blue-600">
+                                    class="flex items-center w-full gap-2 px-3 py-2 text-left text-gray-600 transition-colors duration-200 rounded-md hover:bg-blue-50 hover:text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
                                     บัญชีของฉัน
                                 </NuxtLink>
+                                <NuxtLink to="/report-driver" @click="closeMobileMenu"
+                                    class="flex items-center w-full gap-2 px-3 py-2 text-left text-orange-600 transition-colors duration-200 rounded-md hover:bg-orange-50 hover:text-orange-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                                    </svg>
+                                    รายงานปัญหา
+                                </NuxtLink>
                                 <button @click="logout"
-                                    class="flex items-center block w-full px-3 py-2 text-left text-red-600 transition-colors duration-200 rounded-md hover:bg-red-50 hover:text-red-700">
-                                    Logout
+                                    class="flex items-center w-full gap-2 px-3 py-2 text-left text-red-600 transition-colors duration-200 rounded-md hover:bg-red-50 hover:text-red-700">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                    </svg>
+                                    ออกจากระบบ
                                 </button>
                             </div>
                         </div>
@@ -391,6 +418,11 @@
         <main>
             <NuxtPage />
         </main>
+
+        <!-- SOS Button for Drivers -->
+        <ClientOnly>
+            <DriverSosButton />
+        </ClientOnly>
     </div>
 </template>
 

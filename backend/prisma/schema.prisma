@@ -119,6 +119,14 @@ model User {
   createdRoutes         Route[]             @relation("DriverRoutes")
   bookings              Booking[]           @relation("PassengerBookings")
   deletionRequests      DeletionRequest[]
+  
+  // PBI #8: Emergency Assistance
+  emergencyRequests     EmergencyRequest[]  @relation("DriverEmergencies")
+  emergencyContacts     EmergencyContact[]  @relation("UserEmergencyContacts")
+  
+  // PBI #13: Driver Reports
+  reportsMade           DriverReport[]      @relation("PassengerReports")
+  reportsReceived       DriverReport[]      @relation("DriverReports")
 
   @@index([role])
   @@index([isActive])
@@ -243,6 +251,9 @@ model Booking {
   pickupLocation  Json          @db.Json
   dropoffLocation Json          @db.Json
   createdAt       DateTime      @default(now())
+  
+  // PBI #13: Driver Reports
+  reports         DriverReport[]
 }
 
 // ==================== PBI #16: Deletion Request ====================
@@ -315,4 +326,172 @@ model ActivityLog {
   @@index([activityType])
   @@index([createdAt])
   @@index([scheduledLogDeleteAt])
+}
+
+// ==================== PBI #8: Driver Emergency Assistance (SOS) ====================
+enum EmergencyType {
+  ACCIDENT          // อุบัติเหตุ
+  MEDICAL           // เจ็บป่วย
+  THREAT            // ถูกคุกคาม
+  VEHICLE_BREAKDOWN // รถเสีย
+  OTHER             // อื่นๆ
+}
+
+enum EmergencyStatus {
+  ACTIVE            // กำลังดำเนินการ
+  RESPONDING        // มีคนตอบรับแล้ว
+  RESOLVED          // แก้ไขแล้ว
+  CANCELLED         // ยกเลิก (กดผิด)
+}
+
+model EmergencyRequest {
+  id            String          @id @default(cuid())
+  
+  // Driver info
+  driverId      String
+  driver        User            @relation("DriverEmergencies", fields: [driverId], references: [id], onDelete: Cascade)
+  
+  // Ride info (optional - ถ้ากำลังมีผู้โดยสาร)
+  rideId        String?
+  
+  // Emergency details
+  type          EmergencyType
+  description   String?
+  
+  // Location
+  latitude      Float
+  longitude     Float
+  address       String?
+  
+  // Status
+  status        EmergencyStatus @default(ACTIVE)
+  adminNotes    String?
+  resolvedById  String?
+  
+  // Timestamps
+  createdAt     DateTime        @default(now())
+  respondedAt   DateTime?
+  resolvedAt    DateTime?
+  cancelledAt   DateTime?
+  cancelReason  String?
+
+  @@index([driverId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model EmergencyContact {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation("UserEmergencyContacts", fields: [userId], references: [id], onDelete: Cascade)
+  
+  name          String
+  phone         String
+  relationship  String?  // เช่น พ่อ, แม่, คู่สมรส, เพื่อน
+  isPrimary     Boolean  @default(false)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ==================== PBI #13: Passenger Report Driver Behavior ====================
+enum ReportCategory {
+  DRIVING_BEHAVIOR      // พฤติกรรมการขับขี่
+  VEHICLE_CONDITION     // สภาพรถ
+  SERVICE_QUALITY       // คุณภาพบริการ
+  SAFETY_CONCERN        // ความปลอดภัย
+  PAYMENT_ISSUE         // ปัญหาการเงิน
+  OTHER                 // อื่นๆ
+}
+
+enum ReportType {
+  // Driving Behavior
+  SPEEDING              // ขับรถเร็วเกินไป
+  RECKLESS_DRIVING      // ขับรถประมาท
+  PHONE_WHILE_DRIVING   // ใช้โทรศัพท์ขณะขับรถ
+  
+  // Vehicle Condition
+  DIRTY_VEHICLE         // รถไม่สะอาด
+  VEHICLE_MALFUNCTION   // รถมีปัญหา/ชำรุด
+  BAD_SMELL             // รถมีกลิ่นไม่พึงประสงค์
+  
+  // Service Quality
+  RUDE_BEHAVIOR         // พูดจาไม่สุภาพ
+  UNPROFESSIONAL        // ไม่เป็นมืออาชีพ
+  LATE_ARRIVAL          // มาสาย
+  WRONG_ROUTE           // ไม่ตามเส้นทาง
+  
+  // Safety Concern
+  UNSAFE_FEELING        // รู้สึกไม่ปลอดภัย
+  HARASSMENT            // ถูกคุกคาม
+  INTOXICATED           // สงสัยว่าเมา
+  
+  // Payment Issue
+  OVERCHARGING          // เรียกเก็บเงินเกิน
+  REFUSED_PAYMENT_METHOD // ไม่รับวิธีชำระเงิน
+  
+  // Other
+  NO_SHOW               // ไม่มารับ
+  OTHER                 // อื่นๆ
+}
+
+enum ReportStatus {
+  PENDING               // รอตรวจสอบ
+  REVIEWING             // กำลังตรวจสอบ
+  RESOLVED              // ดำเนินการแล้ว
+  DISMISSED             // ยกฟ้อง (ไม่มีมูล)
+}
+
+enum ReportSeverity {
+  LOW                   // เบา
+  MEDIUM                // ปานกลาง
+  HIGH                  // รุนแรง
+  CRITICAL              // วิกฤต
+}
+
+model DriverReport {
+  id              String         @id @default(cuid())
+  
+  // Reporter (Passenger)
+  reporterId      String
+  reporter        User           @relation("PassengerReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  // Reported Driver
+  driverId        String
+  driver          User           @relation("DriverReports", fields: [driverId], references: [id], onDelete: Cascade)
+  
+  // Related Booking (optional)
+  bookingId       String?
+  booking         Booking?       @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  
+  // Report Details
+  category        ReportCategory
+  type            ReportType
+  severity        ReportSeverity @default(MEDIUM)
+  description     String
+  
+  // Evidence (optional)
+  attachments     Json?          @db.Json  // URLs of uploaded images/videos
+  
+  // Status & Resolution
+  status          ReportStatus   @default(PENDING)
+  adminNotes      String?
+  resolution      String?        // สรุปการดำเนินการ
+  reviewedById    String?
+  
+  // Timestamps
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  reviewedAt      DateTime?
+  resolvedAt      DateTime?
+
+  @@index([reporterId])
+  @@index([driverId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([category])
+  @@index([severity])
+  @@index([createdAt])
 }
