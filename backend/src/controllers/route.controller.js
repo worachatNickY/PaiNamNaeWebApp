@@ -78,14 +78,25 @@ const createRoute = asyncHandler(async (req, res) => {
   };
 
   // ===== Enrich จาก Google Directions =====
-  const directions = await getDirections({
-    origin: payload.startLocation,
-    destination: payload.endLocation,
-    waypoints: routeFields.waypoints || [],
-    optimizeWaypoints,
-    alternatives: false,
-    departureTime: payload.departureTime.toISOString()
-  });
+  let directions;
+  try {
+    directions = await getDirections({
+      origin: payload.startLocation,
+      destination: payload.endLocation,
+      waypoints: routeFields.waypoints || [],
+      optimizeWaypoints,
+      alternatives: false,
+      departureTime: payload.departureTime.toISOString()
+    });
+  } catch (err) {
+    if (err.code === 'ZERO_RESULTS') {
+      throw new ApiError(400, 'ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดปลายทาง กรุณาตรวจสอบตำแหน่งอีกครั้ง');
+    }
+    if (err.code === 'NOT_FOUND') {
+      throw new ApiError(400, 'ไม่พบตำแหน่งที่ระบุ กรุณาเลือกตำแหน่งจากรายการที่แนะนำ');
+    }
+    throw new ApiError(500, `เกิดข้อผิดพลาดในการค้นหาเส้นทาง: ${err.message}`);
+  }
 
   const primary = directions.routes?.[0];
   if (primary) {
@@ -200,14 +211,25 @@ const updateRoute = asyncHandler(async (req, res) => {
         ? optimizeWaypoints
         : (existing.waypoints?.optimize ?? false);
 
-    const directions = await getDirections({
-      origin,
-      destination,
-      waypoints: currentWps,
-      optimizeWaypoints: currentOptimize,
-      alternatives: false,
-      departureTime: depTime
-    });
+    let directions;
+    try {
+      directions = await getDirections({
+        origin,
+        destination,
+        waypoints: currentWps,
+        optimizeWaypoints: currentOptimize,
+        alternatives: false,
+        departureTime: depTime
+      });
+    } catch (err) {
+      if (err.code === 'ZERO_RESULTS') {
+        throw new ApiError(400, 'ไม่พบเส้นทางระหว่างจุดเริ่มต้นและจุดปลายทาง กรุณาตรวจสอบตำแหน่งอีกครั้ง');
+      }
+      if (err.code === 'NOT_FOUND') {
+        throw new ApiError(400, 'ไม่พบตำแหน่งที่ระบุ กรุณาเลือกตำแหน่งจากรายการที่แนะนำ');
+      }
+      throw new ApiError(500, `เกิดข้อผิดพลาดในการค้นหาเส้นทาง: ${err.message}`);
+    }
 
     const primary = directions.routes?.[0];
     if (primary) {

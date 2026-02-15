@@ -307,9 +307,11 @@ if (process.client && !window.google?.maps) {
 }
 useHead({ script: headScripts })
 
-const fetchVehicles = async () => {
+const fetchVehicles = async (showErrorToast = true) => {
     try {
-        const userVehicles = await $api('/vehicles');
+        const response = await $api('/vehicles');
+        // API returns { data: [...], pagination: {...} }
+        const userVehicles = response.data || response || [];
         vehicles.value = userVehicles;
         // [เพิ่ม] ตั้งค่ารถคันแรก (หรือคันที่เป็น default) เป็นค่าเริ่มต้นในฟอร์ม
         if (userVehicles.length > 0) {
@@ -335,6 +337,24 @@ const handleSubmit = async () => {
     // Basic validation (ตามเดิม)
     if (!form.vehicleId || !form.date || !form.time || !form.availableSeats || !form.pricePerSeat) {
         toast.error('ข้อมูลไม่ครบถ้วน', 'กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน')
+        return
+    }
+
+    // Validate start/end point text
+    if (!form.startPoint || !form.endPoint) {
+        toast.error('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุจุดเริ่มต้นและจุดปลายทาง')
+        return
+    }
+
+    // Validate start location
+    if (startMeta.value.lat == null || startMeta.value.lng == null) {
+        toast.error('จุดเริ่มต้นไม่ถูกต้อง', 'กรุณาเลือกจุดเริ่มต้นจากรายการที่แนะนำ หรือใช้ปุ่มปักหมุดบนแผนที่')
+        return
+    }
+
+    // Validate end location
+    if (endMeta.value.lat == null || endMeta.value.lng == null) {
+        toast.error('จุดปลายทางไม่ถูกต้อง', 'กรุณาเลือกจุดปลายทางจากรายการที่แนะนำ หรือใช้ปุ่มปักหมุดบนแผนที่')
         return
     }
 

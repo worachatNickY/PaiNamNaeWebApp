@@ -234,9 +234,12 @@ watch(() => props.show, (newVal) => {
 const fetchVehicles = async () => {
     isLoading.value = true;
     try {
-        vehicles.value = await $api('/vehicles');
+        const response = await $api('/vehicles');
+        // API returns { data: [...], pagination: {...} }
+        vehicles.value = response.data || response || [];
     } catch (error) {
         toast.error('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดข้อมูลรถยนต์ได้');
+        vehicles.value = [];
     } finally {
         isLoading.value = false;
     }

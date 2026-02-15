@@ -372,7 +372,9 @@ async function loadRoute() {
 // ====== ดึงรถผู้ใช้ ======
 const fetchVehicles = async () => {
     try {
-        const userVehicles = await $api('/vehicles')
+        const response = await $api('/vehicles')
+        // API returns { data: [...], pagination: {...} }
+        const userVehicles = response.data || response || []
         vehicles.value = userVehicles
         if (userVehicles.length > 0) {
             const def = userVehicles.find(v => v.isDefault) || userVehicles[0]

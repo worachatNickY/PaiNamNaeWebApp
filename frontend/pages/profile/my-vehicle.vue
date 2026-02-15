@@ -58,10 +58,13 @@ const vehicleCount = ref(0);
 
 const fetchVehicles = async () => {
     try {
-        const vehicles = await $api('/vehicles');
-        vehicleCount.value = vehicles.length;
+        const response = await $api('/vehicles');
+        // API returns { data: [...], pagination: {...} }
+        const vehicles = response.data || response || [];
+        vehicleCount.value = Array.isArray(vehicles) ? vehicles.length : 0;
     } catch (error) {
         console.error("Failed to fetch vehicles:", error);
+        vehicleCount.value = 0;
     }
 };
 

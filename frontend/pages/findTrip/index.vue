@@ -539,7 +539,7 @@ const searchForm = ref({
     date: '',
     seats: ''
 })
-const RADIUS_METERS = 500
+const RADIUS_METERS = 10000 // 10 กิโลเมตร เพื่อให้ค้นหาเส้นทางได้กว้างขึ้น
 
 const routes = ref([])
 const selectedRoute = ref(null)
