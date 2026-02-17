@@ -17,9 +17,20 @@ const app = express();
 promClient.collectDefaultMetrics();
 
 // CORS must be before helmet
+const allowedOrigins = [
+    'http://localhost:3001',
+    'https://amazing-crisp-9bcb1a.netlify.app',
+    'https://csgroup41.cpkku.com',
+    /^https:\/\/[\w-]+\.railway\.app$/,  // frontend/backend on Railway
+];
 const corsOptions = {
-    origin: ['http://localhost:3001',
-        'https://amazing-crisp-9bcb1a.netlify.app'],
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true); // same-origin or server-to-server
+        const ok = allowedOrigins.some(allowed =>
+            typeof allowed === 'string' ? origin === allowed : allowed.test(origin)
+        );
+        callback(null, ok);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
