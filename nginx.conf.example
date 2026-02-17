@@ -1,0 +1,49 @@
+# ==================== Nginx Configuration for PaiNamNae ====================
+# ใช้กับ Hestia Control Panel
+# วางไฟล์นี้ใน: /home/csse4169/conf/web/YOUR_DOMAIN.nginx.conf
+# หรือตั้งค่าผ่าน Hestia Control Panel > Web > Edit > Advanced Settings
+
+# Frontend (Nuxt.js) - Port 3001
+location / {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_cache_bypass $http_upgrade;
+    proxy_read_timeout 86400;
+}
+
+# Backend API - Port 3000
+location /api/ {
+    proxy_pass http://127.0.0.1:3000/api/;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection 'upgrade';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_cache_bypass $http_upgrade;
+    
+    # CORS Headers (ถ้าต้องการ)
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods 'GET, POST, PUT, DELETE, PATCH, OPTIONS';
+    add_header Access-Control-Allow-Headers 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization';
+}
+
+# Static files caching
+location ~* \.(jpg|jpeg|png|gif|ico|css|js|pdf|txt|woff|woff2|ttf|svg)$ {
+    expires 30d;
+    add_header Cache-Control "public, immutable";
+}
+
+# Gzip compression
+gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml;
