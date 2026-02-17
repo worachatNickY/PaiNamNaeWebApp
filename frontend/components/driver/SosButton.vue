@@ -220,15 +220,17 @@ const getLocation = () => {
                 }
                 locationLoading.value = false
 
-                // Try to get address (optional)
+                // Try to get address (optional) - use backend API to avoid CORS
                 try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.value.latitude}&lon=${location.value.longitude}&accept-language=th`
-                    )
-                    const data = await response.json()
-                    locationAddress.value = data.display_name || ''
+                    const response = await $api(`/maps/reverse-geocode?lat=${location.value.latitude}&lng=${location.value.longitude}`)
+                    // Response structure: { success: true, data: { formatted_address: "...", ... } }
+                    if (response?.formatted_address) {
+                        locationAddress.value = response.formatted_address
+                    } else if (response?.data?.formatted_address) {
+                        locationAddress.value = response.data.formatted_address
+                    }
                 } catch (e) {
-                    console.log('Could not get address')
+                    console.log('Could not get address:', e)
                 }
             },
             (error) => {
