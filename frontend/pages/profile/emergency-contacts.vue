@@ -28,7 +28,11 @@
                                     <label class="block mb-1 text-sm font-medium text-gray-700">เบอร์โทรศัพท์</label>
                                     <input v-model="form.phone" type="tel" required
                                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        placeholder="08x-xxx-xxxx" />
+                                        placeholder="0888888888"
+                                        maxlength="10"
+                                        pattern="[0-9]{10}"
+                                        @input="form.phone = form.phone.replace(/[^0-9]/g, '')" />
+                                    <p class="mt-1 text-xs text-gray-500">กรุณากรอกเบอร์โทรศัพท์ 10 หลัก</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -190,15 +194,32 @@ const fetchContacts = async () => {
     loading.value = true
     try {
         const response = await $api('/emergency/contacts')
-        contacts.value = response.data || []
+        console.log('Emergency contacts response:', response)
+        // $api plugin unwraps response.data automatically
+        // So response could be array directly or { data: [...], pagination: {...} }
+        if (Array.isArray(response)) {
+            contacts.value = response
+        } else if (response?.data && Array.isArray(response.data)) {
+            contacts.value = response.data
+        } else {
+            contacts.value = []
+        }
+        console.log('Contacts after processing:', contacts.value)
     } catch (error) {
         console.error('Failed to fetch contacts:', error)
+        contacts.value = []
     } finally {
         loading.value = false
     }
 }
 
 const saveContact = async () => {
+    // Validate phone number
+    if (!form.value.phone || form.value.phone.length !== 10 || !/^0\d{9}$/.test(form.value.phone)) {
+        toast.error('เบอร์โทรศัพท์ไม่ถูกต้อง', 'กรุณากรอกเบอร์โทรศัพท์ 10 หลัก ขึ้นต้นด้วย 0')
+        return
+    }
+
     saving.value = true
     try {
         const payload = {
@@ -211,6 +232,7 @@ const saveContact = async () => {
         })
         await fetchContacts()
         resetForm()
+        toast.success('สำเร็จ', 'เพิ่มผู้ติดต่อสำเร็จ')
     } catch (error) {
         toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     } finally {

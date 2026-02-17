@@ -34,7 +34,7 @@ const saveContactSchema = {
     body: z.object({
         id: z.string().optional(),
         name: z.string().min(1).max(100),
-        phone: z.string().min(9).max(15),
+        phone: z.string().regex(/^0\d{9}$/, 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก ขึ้นต้นด้วย 0'),
         relationship: z.string().max(50).optional(),
         isPrimary: z.boolean().optional()
     })
