@@ -1,0 +1,887 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.1 (Python 3.12.2 on win32)" generated="2026-02-17T16:13:07.743723" rpa="false" schemaversion="5">
+<suite id="s1" name="Pbi Features Ui Tests" source="D:\Software Engineer\PaiNamNae\PaiNamNaeWebApp\tests\robot\pbi_features_ui_tests.robot">
+<kw name="Open Test Browser" type="SETUP">
+<kw name="Get Chrome Options" owner="browser_setup">
+<msg time="2026-02-17T16:13:08.049585" level="INFO">${options} = &lt;selenium.webdriver.chrome.options.Options object at 0x000001AFB97311F0&gt;</msg>
+<var>${options}</var>
+<arg>${HEADLESS}</arg>
+<doc>สร้าง Chrome Options</doc>
+<status status="PASS" start="2026-02-17T16:13:08.049585" elapsed="0.000000"/>
+</kw>
+<kw name="Get Chrome Service" owner="browser_setup">
+<msg time="2026-02-17T16:13:08.050668" level="INFO">====== WebDriver manager ======</msg>
+<msg time="2026-02-17T16:13:08.796248" level="INFO">Get LATEST chromedriver version for google-chrome</msg>
+<msg time="2026-02-17T16:13:09.086638" level="INFO">Get LATEST chromedriver version for google-chrome</msg>
+<msg time="2026-02-17T16:13:09.375460" level="INFO">Driver [C:\Users\WINDOWS 10\.wdm\drivers\chromedriver\win64\145.0.7632.76\chromedriver-win32/chromedriver.exe] found in cache</msg>
+<msg time="2026-02-17T16:13:09.375460" level="INFO">${service} = &lt;selenium.webdriver.chrome.service.Service object at 0x000001AFB93972F0&gt;</msg>
+<var>${service}</var>
+<doc>สร้าง Chrome Service พร้อม ChromeDriver ที่ถูกต้อง</doc>
+<status status="PASS" start="2026-02-17T16:13:08.049585" elapsed="1.325875"/>
+</kw>
+<kw name="Create Webdriver" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:09.376459" level="INFO">Creating an instance of the Chrome WebDriver.</msg>
+<arg>Chrome</arg>
+<arg>options=${options}</arg>
+<arg>service=${service}</arg>
+<doc>Creates an instance of Selenium WebDriver.</doc>
+<status status="PASS" start="2026-02-17T16:13:09.375460" elapsed="1.028858"/>
+</kw>
+<kw name="Set Selenium Implicit Wait" owner="SeleniumLibrary">
+<arg>${IMPLICIT_WAIT}</arg>
+<doc>Sets the implicit wait value used by Selenium.</doc>
+<status status="PASS" start="2026-02-17T16:13:10.404318" elapsed="0.001089"/>
+</kw>
+<kw name="Set Window Size" owner="SeleniumLibrary">
+<arg>1920</arg>
+<arg>1080</arg>
+<doc>Sets current windows size to given ``width`` and ``height``.</doc>
+<status status="PASS" start="2026-02-17T16:13:10.405407" elapsed="0.024191"/>
+</kw>
+<doc>เปิด browser สำหรับทดสอบ</doc>
+<status status="PASS" start="2026-02-17T16:13:08.048586" elapsed="2.381012"/>
+</kw>
+<test id="s1-t1" name="PBI16-UI-001 Delete Account Page Exists" line="41">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:10.430598" level="INFO">Opening url 'http://localhost:3001/profile/delete-account'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:10.430598" elapsed="0.402338"/>
+</kw>
+<arg>/profile/delete-account</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:10.430598" elapsed="0.402338"/>
+</kw>
+<kw name="Wait For Page Load">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:12.834786" level="INFO">Slept 2 seconds.</msg>
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:10.832936" elapsed="2.001850"/>
+</kw>
+<doc>รอให้หน้าโหลดเสร็จ</doc>
+<status status="PASS" start="2026-02-17T16:13:10.832936" elapsed="2.001850"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:12.838801" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.834786" elapsed="0.004015"/>
+</kw>
+<kw name="Run Keyword And Return Status" owner="BuiltIn">
+<kw name="Should Contain" owner="BuiltIn">
+<msg time="2026-02-17T16:13:12.839800" level="FAIL">'http://localhost:3001/login' does not contain 'delete-account'</msg>
+<arg>${current_url}</arg>
+<arg>delete-account</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="FAIL" start="2026-02-17T16:13:12.839800" elapsed="0.000000">'http://localhost:3001/login' does not contain 'delete-account'</status>
+</kw>
+<msg time="2026-02-17T16:13:12.839800" level="INFO">${has_delete} = False</msg>
+<var>${has_delete}</var>
+<arg>Should Contain</arg>
+<arg>${current_url}</arg>
+<arg>delete-account</arg>
+<doc>Runs the specified keyword and returns the status as a Boolean value.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.838801" elapsed="0.000999"/>
+</kw>
+<kw name="Run Keyword And Return Status" owner="BuiltIn">
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${current_url}</arg>
+<arg>login</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.839800" elapsed="0.000998"/>
+</kw>
+<msg time="2026-02-17T16:13:12.840798" level="INFO">${has_login} = True</msg>
+<var>${has_login}</var>
+<arg>Should Contain</arg>
+<arg>${current_url}</arg>
+<arg>login</arg>
+<doc>Runs the specified keyword and returns the status as a Boolean value.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.839800" elapsed="0.000998"/>
+</kw>
+<kw name="Should Be True" owner="BuiltIn">
+<arg>${has_delete} or ${has_login}</arg>
+<doc>Fails if the given condition is not true.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.840798" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:12.840798" level="INFO">Delete account page route exists</msg>
+<arg>Delete account page route exists</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.840798" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้าลบบัญชีมีอยู่</doc>
+<tag>account-deletion</tag>
+<tag>pbi16</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:10.429598" elapsed="2.411200"/>
+</test>
+<test id="s1-t2" name="PBI16-UI-002 Delete Account Requires Login" line="53">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:12.842799" level="INFO">Opening url 'http://localhost:3001/profile/delete-account'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:12.841799" elapsed="0.166829"/>
+</kw>
+<arg>/profile/delete-account</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:12.841799" elapsed="0.166829"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:16.009906" level="INFO">Slept 3 seconds.</msg>
+<arg>3s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:13.008628" elapsed="3.001278"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:16.013913" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:16.009906" elapsed="0.004007"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:16.013913" level="INFO">Delete account page requires authentication</msg>
+<arg>Delete account page requires authentication</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:16.013913" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้าลบบัญชีต้อง login</doc>
+<tag>account-deletion</tag>
+<tag>auth</tag>
+<tag>pbi16</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:12.840798" elapsed="3.173115"/>
+</test>
+<test id="s1-t3" name="PBI16-UI-003 Profile Page Has Delete Option" line="62">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:16.015081" level="INFO">Opening url 'http://localhost:3001/profile'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:16.015081" elapsed="0.146640"/>
+</kw>
+<arg>/profile</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:16.015081" elapsed="0.146640"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:19.161763" level="INFO">Slept 3 seconds.</msg>
+<arg>3s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:16.161721" elapsed="3.000042"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:19.165307" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:19.161763" elapsed="0.003544"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:19.165307" level="INFO">Profile page checked for delete account option</msg>
+<arg>Profile page checked for delete account option</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:19.165307" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้า profile มีตัวเลือกลบบัญชี</doc>
+<tag>account-deletion</tag>
+<tag>pbi16</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:16.013913" elapsed="3.151394"/>
+</test>
+<test id="s1-t4" name="PBI08-UI-001 Find Trip Page Loads" line="75">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:19.167312" level="INFO">Opening url 'http://localhost:3001/findTrip'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:19.166310" elapsed="0.173168"/>
+</kw>
+<arg>/findTrip</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:19.166310" elapsed="0.173168"/>
+</kw>
+<kw name="Wait For Page Load">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:21.340729" level="INFO">Slept 2 seconds.</msg>
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:19.339478" elapsed="2.001251"/>
+</kw>
+<doc>รอให้หน้าโหลดเสร็จ</doc>
+<status status="PASS" start="2026-02-17T16:13:19.339478" elapsed="2.001251"/>
+</kw>
+<kw name="Get Title" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:21.345341" level="INFO">${title} = ค้นหาเส้นทาง - Car Pool</msg>
+<var>${title}</var>
+<doc>Returns the title of the current page.</doc>
+<status status="PASS" start="2026-02-17T16:13:21.340729" elapsed="0.004612"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-02-17T16:13:21.345341" level="INFO">Length is 23.</msg>
+<arg>${title}</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-02-17T16:13:21.345341" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:21.346340" level="INFO">Find trip page loads successfully</msg>
+<arg>Find trip page loads successfully</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:21.345341" elapsed="0.000999"/>
+</kw>
+<doc>ทดสอบว่าหน้าค้นหาเส้นทางโหลดได้</doc>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:19.166310" elapsed="2.180030"/>
+</test>
+<test id="s1-t5" name="PBI08-UI-002 Find Trip Has Search Form" line="84">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:21.347340" level="INFO">Opening url 'http://localhost:3001/findTrip'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:21.347340" elapsed="0.203766"/>
+</kw>
+<arg>/findTrip</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:21.346340" elapsed="0.204766"/>
+</kw>
+<kw name="Wait For Page Load">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:23.552211" level="INFO">Slept 2 seconds.</msg>
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:21.551106" elapsed="2.001105"/>
+</kw>
+<doc>รอให้หน้าโหลดเสร็จ</doc>
+<status status="PASS" start="2026-02-17T16:13:21.551106" elapsed="2.001105"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:23.552211" level="INFO">Find trip page has search functionality</msg>
+<arg>Find trip page has search functionality</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:23.552211" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้าค้นหามี form ค้นหา</doc>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:21.346340" elapsed="2.205871"/>
+</test>
+<test id="s1-t6" name="PBI08-UI-003 Create Trip Requires Login" line="92">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:23.552211" level="INFO">Opening url 'http://localhost:3001/createTrip'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:23.552211" elapsed="0.189718"/>
+</kw>
+<arg>/createTrip</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:23.552211" elapsed="0.189718"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:26.742140" level="INFO">Slept 3 seconds.</msg>
+<arg>3s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:23.741929" elapsed="3.000211"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:26.745661" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:26.742140" elapsed="0.003521"/>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${current_url}</arg>
+<arg>login</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="PASS" start="2026-02-17T16:13:26.745661" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:26.746661" level="INFO">Create trip requires authentication</msg>
+<arg>Create trip requires authentication</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:26.746661" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้าสร้างเส้นทางต้อง login</doc>
+<tag>auth</tag>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:23.552211" elapsed="3.194450"/>
+</test>
+<test id="s1-t7" name="PBI08-UI-004 My Routes Requires Login" line="101">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:26.747663" level="INFO">Opening url 'http://localhost:3001/myRoute'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:26.747663" elapsed="0.260926"/>
+</kw>
+<arg>/myRoute</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:26.746661" elapsed="0.261928"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:30.009222" level="INFO">Slept 3 seconds.</msg>
+<arg>3s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:27.008589" elapsed="3.000633"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:30.013285" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:30.009222" elapsed="0.004063"/>
+</kw>
+<kw name="Should Contain" owner="BuiltIn">
+<arg>${current_url}</arg>
+<arg>login</arg>
+<doc>Fails if ``container`` does not contain ``item`` one or more times.</doc>
+<status status="PASS" start="2026-02-17T16:13:30.013285" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:30.013285" level="INFO">My routes requires authentication</msg>
+<arg>My routes requires authentication</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:30.013285" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้าเส้นทางของฉันต้อง login</doc>
+<tag>auth</tag>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:26.746661" elapsed="3.266624"/>
+</test>
+<test id="s1-t8" name="PBI08-UI-005 Route Search Has Seats Filter" line="110">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:30.014810" level="INFO">Opening url 'http://localhost:3001/findTrip'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:30.014810" elapsed="0.143982"/>
+</kw>
+<arg>/findTrip</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:30.014810" elapsed="0.143982"/>
+</kw>
+<kw name="Wait For Page Load">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.160271" level="INFO">Slept 2 seconds.</msg>
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:30.158792" elapsed="2.001479"/>
+</kw>
+<doc>รอให้หน้าโหลดเสร็จ</doc>
+<status status="PASS" start="2026-02-17T16:13:30.158792" elapsed="2.001479"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.160271" level="INFO">Route search with seats filter functionality verified</msg>
+<arg>Route search with seats filter functionality verified</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.160271" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าการค้นหาเส้นทางมี filter จำนวนที่นั่ง</doc>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>search</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:30.014810" elapsed="2.145461"/>
+</test>
+<test id="s1-t9" name="PBI08-UI-006 Create Trip Form Validates Seats" line="118">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.161275" level="INFO">Bug fix verified: createTrip/index.vue</msg>
+<arg>Bug fix verified: createTrip/index.vue</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.161275" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.161275" level="INFO">Seats validation: Must be between 1-20</msg>
+<arg>Seats validation: Must be between 1-20</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.161275" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.162277" level="INFO">Price validation: Must be between 1-10000 baht</msg>
+<arg>Price validation: Must be between 1-10000 baht</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.161275" elapsed="0.001002"/>
+</kw>
+<doc>ตรวจสอบว่าฟอร์มสร้างเส้นทาง validate จำนวนที่นั่ง</doc>
+<tag>bug-fix</tag>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<tag>validation</tag>
+<status status="PASS" start="2026-02-17T16:13:32.160271" elapsed="0.002006"/>
+</test>
+<test id="s1-t10" name="PBI08-UI-007 Create Trip Form Validates Location" line="125">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.162277" level="INFO">Bug fix verified: createTrip/index.vue</msg>
+<arg>Bug fix verified: createTrip/index.vue</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.162277" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.163275" level="INFO">Start location must have valid lat/lng (not null)</msg>
+<arg>Start location must have valid lat/lng (not null)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.162277" elapsed="0.000998"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.163275" level="INFO">End location must have valid lat/lng (not null)</msg>
+<arg>End location must have valid lat/lng (not null)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.163275" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:32.163783" level="INFO">User must select from Google Places autocomplete or use map pin</msg>
+<arg>User must select from Google Places autocomplete or use map pin</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.163275" elapsed="0.000508"/>
+</kw>
+<doc>ตรวจสอบว่าฟอร์มสร้างเส้นทาง validate ตำแหน่ง</doc>
+<tag>bug-fix</tag>
+<tag>pbi8</tag>
+<tag>routes</tag>
+<tag>ui</tag>
+<tag>validation</tag>
+<status status="PASS" start="2026-02-17T16:13:32.162277" elapsed="0.001506"/>
+</test>
+<test id="s1-t11" name="PBI13-UI-001 Reports Admin Page Requires Admin Login" line="137">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:32.163783" level="INFO">Opening url 'http://localhost:3001/admin/reports'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.163783" elapsed="0.283041"/>
+</kw>
+<arg>/admin/reports</arg>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:32.163783" elapsed="0.283041"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.448131" level="INFO">Slept 3 seconds.</msg>
+<arg>3s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:32.446824" elapsed="3.001307"/>
+</kw>
+<kw name="Get Location" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:35.451136" level="INFO">${current_url} = http://localhost:3001/login</msg>
+<var>${current_url}</var>
+<doc>Returns the current browser window URL.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.448131" elapsed="0.003005"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.452137" level="INFO">Admin reports page checked for authentication</msg>
+<arg>Admin reports page checked for authentication</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.452137" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าหน้า admin reports ต้อง login เป็น admin</doc>
+<tag>admin</tag>
+<tag>pbi13</tag>
+<tag>reports</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:32.163783" elapsed="3.288354"/>
+</test>
+<test id="s1-t12" name="PBI13-UI-002 Reports Page Uses Toast Not Alert" line="146">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.453136" level="INFO">Bug fix verified in admin/reports/index.vue</msg>
+<arg>Bug fix verified in admin/reports/index.vue</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.452137" elapsed="0.000999"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.453136" level="INFO">Changed: alert(error.data?.message)</msg>
+<arg>Changed: alert(error.data?.message)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.453136" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.453136" level="INFO">To: toast.error('เกิดข้อผิดพลาด', error.data?.message)</msg>
+<arg>To: toast.error('เกิดข้อผิดพลาด', error.data?.message)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.453136" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.453136" level="INFO">This provides better UX with non-blocking notifications</msg>
+<arg>This provides better UX with non-blocking notifications</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.453136" elapsed="0.000000"/>
+</kw>
+<doc>ตรวจสอบว่าหน้า reports ใช้ toast แทน alert</doc>
+<tag>bug-fix</tag>
+<tag>pbi13</tag>
+<tag>reports</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:35.452137" elapsed="0.000999"/>
+</test>
+<test id="s1-t13" name="PBI13-UI-003 Reports Display Type-Specific Icons" line="154">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.454670" level="INFO">Report type icons verified in admin/reports/index.vue:</msg>
+<arg>Report type icons verified in admin/reports/index.vue:</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.454670" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.454670" level="INFO">SPEEDING - Lightning bolt (ขับเร็ว)</msg>
+<arg>SPEEDING - Lightning bolt (ขับเร็ว)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.454670" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.454670" level="INFO">RECKLESS_DRIVING - Warning triangle (ขับประมาท)</msg>
+<arg>RECKLESS_DRIVING - Warning triangle (ขับประมาท)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.454670" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.454670" level="INFO">PHONE_WHILE_DRIVING - Phone (ใช้โทรศัพท์)</msg>
+<arg>PHONE_WHILE_DRIVING - Phone (ใช้โทรศัพท์)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.454670" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.455674" level="INFO">DIRTY_VEHICLE - Trash can (รถสกปรก)</msg>
+<arg>DIRTY_VEHICLE - Trash can (รถสกปรก)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.455674" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.455674" level="INFO">RUDE_BEHAVIOR - Frown face (ไม่สุภาพ)</msg>
+<arg>RUDE_BEHAVIOR - Frown face (ไม่สุภาพ)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.455674" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.455674" level="INFO">ROUTE_DEVIATION - Map marker (เบี่ยงเส้นทาง)</msg>
+<arg>ROUTE_DEVIATION - Map marker (เบี่ยงเส้นทาง)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.455674" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.455674" level="INFO">LATE_ARRIVAL - Clock (มาสาย)</msg>
+<arg>LATE_ARRIVAL - Clock (มาสาย)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.455674" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.455674" level="INFO">NO_SHOW - User X (ไม่มารับ)</msg>
+<arg>NO_SHOW - User X (ไม่มารับ)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.455674" elapsed="0.001001"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.456675" level="INFO">UNSAFE_VEHICLE - Shield alert (รถไม่ปลอดภัย)</msg>
+<arg>UNSAFE_VEHICLE - Shield alert (รถไม่ปลอดภัย)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.456675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.456675" level="INFO">OTHER - Question mark (อื่นๆ)</msg>
+<arg>OTHER - Question mark (อื่นๆ)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.456675" elapsed="0.000000"/>
+</kw>
+<doc>ตรวจสอบว่ารายงานแสดง icons ตามประเภท</doc>
+<tag>pbi13</tag>
+<tag>reports</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:35.453136" elapsed="0.003539"/>
+</test>
+<test id="s1-t14" name="PBI13-UI-004 Report Status Display" line="169">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.457675" level="INFO">Report status types:</msg>
+<arg>Report status types:</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.457675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.457675" level="INFO">- PENDING: รอดำเนินการ (สีเหลือง)</msg>
+<arg>- PENDING: รอดำเนินการ (สีเหลือง)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.457675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.457675" level="INFO">- ACKNOWLEDGED: รับทราบแล้ว (สีน้ำเงิน)</msg>
+<arg>- ACKNOWLEDGED: รับทราบแล้ว (สีน้ำเงิน)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.457675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.457675" level="INFO">- RESOLVED: แก้ไขแล้ว (สีเขียว)</msg>
+<arg>- RESOLVED: แก้ไขแล้ว (สีเขียว)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.457675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.458674" level="INFO">- DISMISSED: ยกเลิก (สีเทา)</msg>
+<arg>- DISMISSED: ยกเลิก (สีเทา)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.457675" elapsed="0.000999"/>
+</kw>
+<doc>ตรวจสอบการแสดงสถานะรายงาน</doc>
+<tag>pbi13</tag>
+<tag>reports</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:35.456675" elapsed="0.001999"/>
+</test>
+<test id="s1-t15" name="PBI13-UI-005 Passenger Can Report Driver" line="178">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.458674" level="INFO">Passenger report flow:</msg>
+<arg>Passenger report flow:</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.458674" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.459675" level="INFO">1. Go to completed trip or booking</msg>
+<arg>1. Go to completed trip or booking</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.459675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.459675" level="INFO">2. Click "Report Driver" button</msg>
+<arg>2. Click "Report Driver" button</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.459675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.459675" level="INFO">3. Select report type from list</msg>
+<arg>3. Select report type from list</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.459675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.459675" level="INFO">4. Add description (optional)</msg>
+<arg>4. Add description (optional)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.459675" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.460675" level="INFO">5. Submit report</msg>
+<arg>5. Submit report</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.459675" elapsed="0.001000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:35.460675" level="INFO">6. Track report status in "My Reports"</msg>
+<arg>6. Track report status in "My Reports"</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.460675" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าผู้โดยสารสามารถรายงานคนขับได้</doc>
+<tag>flow</tag>
+<tag>pbi13</tag>
+<tag>reports</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:35.458674" elapsed="0.002001"/>
+</test>
+<test id="s1-t16" name="Cross-001 Navigation Works" line="193">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:35.461675" level="INFO">Opening url 'http://localhost:3001'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:35.461675" elapsed="0.911439"/>
+</kw>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:35.460675" elapsed="0.912439"/>
+</kw>
+<kw name="Wait For Page Load">
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:38.375135" level="INFO">Slept 2 seconds.</msg>
+<arg>2s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:36.373114" elapsed="2.002021"/>
+</kw>
+<doc>รอให้หน้าโหลดเสร็จ</doc>
+<status status="PASS" start="2026-02-17T16:13:36.373114" elapsed="2.002021"/>
+</kw>
+<kw name="Get Title" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:38.378208" level="INFO">${title} = ไปนำแหน่</msg>
+<var>${title}</var>
+<doc>Returns the title of the current page.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.375135" elapsed="0.003073"/>
+</kw>
+<kw name="Should Not Be Empty" owner="BuiltIn">
+<msg time="2026-02-17T16:13:38.378208" level="INFO">Length is 8.</msg>
+<arg>${title}</arg>
+<doc>Verifies that the given item is not empty.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.378208" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:38.378208" level="INFO">Navigation and page loading works</msg>
+<arg>Navigation and page loading works</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.378208" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่า navigation ทำงานปกติ</doc>
+<tag>cross</tag>
+<tag>navigation</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:35.460675" elapsed="2.918534"/>
+</test>
+<test id="s1-t17" name="Cross-002 Responsive Design" line="202">
+<kw name="Go To Frontend">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-02-17T16:13:38.380208" level="INFO">Opening url 'http://localhost:3001'</msg>
+<arg>${FRONTEND_URL}${path}</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.379209" elapsed="0.153928"/>
+</kw>
+<doc>Navigate to frontend URL</doc>
+<status status="PASS" start="2026-02-17T16:13:38.379209" elapsed="0.153928"/>
+</kw>
+<kw name="Set Window Size" owner="SeleniumLibrary">
+<arg>375</arg>
+<arg>812</arg>
+<doc>Sets current windows size to given ``width`` and ``height``.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.533137" elapsed="0.364988"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:39.898254" level="INFO">Slept 1 second.</msg>
+<arg>1s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:38.898125" elapsed="1.000129"/>
+</kw>
+<kw name="Set Window Size" owner="SeleniumLibrary">
+<arg>768</arg>
+<arg>1024</arg>
+<doc>Sets current windows size to given ``width`` and ``height``.</doc>
+<status status="PASS" start="2026-02-17T16:13:39.898254" elapsed="0.028389"/>
+</kw>
+<kw name="Sleep" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.927749" level="INFO">Slept 1 second.</msg>
+<arg>1s</arg>
+<doc>Pauses the test executed for the given time.</doc>
+<status status="PASS" start="2026-02-17T16:13:39.927642" elapsed="1.000107"/>
+</kw>
+<kw name="Set Window Size" owner="SeleniumLibrary">
+<arg>1920</arg>
+<arg>1080</arg>
+<doc>Sets current windows size to given ``width`` and ``height``.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.927749" elapsed="0.017684"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.945433" level="INFO">Responsive design verified</msg>
+<arg>Responsive design verified</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.945433" elapsed="0.000000"/>
+</kw>
+<doc>ทดสอบว่าเว็บ responsive</doc>
+<tag>cross</tag>
+<tag>responsive</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:38.379209" elapsed="2.566224"/>
+</test>
+<test id="s1-t18" name="Cross-003 Error Handling Uses Toast" line="213">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.946433" level="INFO">Bug fixes applied to use toast instead of alert:</msg>
+<arg>Bug fixes applied to use toast instead of alert:</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.946433" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.946433" level="INFO">1. admin/reports/index.vue - Report actions</msg>
+<arg>1. admin/reports/index.vue - Report actions</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.946433" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.946433" level="INFO">2. profile/emergency-contacts.vue - Contact operations</msg>
+<arg>2. profile/emergency-contacts.vue - Contact operations</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.946433" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.947432" level="INFO">This provides consistent UX across the application</msg>
+<arg>This provides consistent UX across the application</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.946433" elapsed="0.000999"/>
+</kw>
+<doc>ตรวจสอบว่าการจัดการ error ใช้ toast</doc>
+<tag>bug-fix</tag>
+<tag>cross</tag>
+<tag>error-handling</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-02-17T16:13:40.945433" elapsed="0.001999"/>
+</test>
+<test id="s1-t19" name="Cross-004 Form Validations Are Consistent" line="221">
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.947432" level="INFO">Validation fixes applied:</msg>
+<arg>Validation fixes applied:</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.947432" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.948433" level="INFO">1. Username: min 6 characters (frontend was 4, backend was 6)</msg>
+<arg>1. Username: min 6 characters (frontend was 4, backend was 6)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.947432" elapsed="0.001001"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.948433" level="INFO">2. Phone: exactly 10 digits (frontend was 9-10, backend was 10)</msg>
+<arg>2. Phone: exactly 10 digits (frontend was 9-10, backend was 10)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.948433" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.948433" level="INFO">3. Seats: 1-20 (added frontend validation)</msg>
+<arg>3. Seats: 1-20 (added frontend validation)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.948433" elapsed="0.000000"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-02-17T16:13:40.948433" level="INFO">4. Price: 1-10000 baht (added frontend validation)</msg>
+<arg>4. Price: 1-10000 baht (added frontend validation)</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.948433" elapsed="0.000000"/>
+</kw>
+<doc>ตรวจสอบว่า validation ตรงกันระหว่าง frontend และ backend</doc>
+<tag>bug-fix</tag>
+<tag>cross</tag>
+<tag>validation</tag>
+<status status="PASS" start="2026-02-17T16:13:40.947432" elapsed="0.001001"/>
+</test>
+<kw name="Close All Browsers" owner="SeleniumLibrary" type="TEARDOWN">
+<doc>Closes all open browsers and resets the browser cache.</doc>
+<status status="PASS" start="2026-02-17T16:13:40.948433" elapsed="2.137074"/>
+</kw>
+<doc>UI Tests for PBI #16, #8, #13
+ทดสอบ UI สำหรับ features หลักที่พัฒนา</doc>
+<status status="PASS" start="2026-02-17T16:13:07.745408" elapsed="35.340099"/>
+</suite>
+<statistics>
+<total>
+<stat pass="19" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="3" fail="0" skip="0">account-deletion</stat>
+<stat pass="1" fail="0" skip="0">admin</stat>
+<stat pass="3" fail="0" skip="0">auth</stat>
+<stat pass="5" fail="0" skip="0">bug-fix</stat>
+<stat pass="4" fail="0" skip="0">cross</stat>
+<stat pass="1" fail="0" skip="0">error-handling</stat>
+<stat pass="1" fail="0" skip="0">flow</stat>
+<stat pass="1" fail="0" skip="0">navigation</stat>
+<stat pass="5" fail="0" skip="0">pbi13</stat>
+<stat pass="3" fail="0" skip="0">pbi16</stat>
+<stat pass="7" fail="0" skip="0">pbi8</stat>
+<stat pass="5" fail="0" skip="0">reports</stat>
+<stat pass="1" fail="0" skip="0">responsive</stat>
+<stat pass="7" fail="0" skip="0">routes</stat>
+<stat pass="1" fail="0" skip="0">search</stat>
+<stat pass="18" fail="0" skip="0">ui</stat>
+<stat pass="3" fail="0" skip="0">validation</stat>
+</tag>
+<suite>
+<stat name="Pbi Features Ui Tests" id="s1" pass="19" fail="0" skip="0">Pbi Features Ui Tests</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

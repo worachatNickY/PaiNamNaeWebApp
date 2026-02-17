@@ -311,6 +311,7 @@ dayjs.extend(buddhistEra)
 definePageMeta({ middleware: ['admin-auth'] })
 
 const { toast } = useToast()
+const config = useRuntimeConfig()
 
 const isLoading = ref(false)
 const loadError = ref('')
@@ -475,7 +476,7 @@ async function fetchBookings() {
     loadError.value = ''
     try {
         const token = useCookie('token').value || (process.client ? localStorage.getItem('token') : '')
-        const res = await fetch('http://localhost:3000/api/bookings/admin', {
+        const res = await fetch(`${config.public.apiBase}/bookings/admin`, {
             headers: {
                 Accept: 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {})
@@ -569,7 +570,6 @@ async function confirmDelete() {
     }
 }
 async function deleteBooking(id) {
-    const config = useRuntimeConfig()
     const token = useCookie('token').value || (process.client ? localStorage.getItem('token') : '')
     const res = await fetch(`${config.public.apiBase}/bookings/admin/${id}`, {
         method: 'DELETE',

@@ -495,7 +495,7 @@ const startReviewReport = async () => {
         selectedReport.value = null
         await Promise.all([fetchReports(), fetchStats()])
     } catch (error) {
-        alert(error.data?.message || 'Error')
+        toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     } finally {
         actionLoading.value = false
     }
@@ -515,7 +515,7 @@ const resolveReport = async () => {
         selectedReport.value = null
         await Promise.all([fetchReports(), fetchStats()])
     } catch (error) {
-        alert(error.data?.message || 'Error')
+        toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     } finally {
         actionLoading.value = false
     }
@@ -535,7 +535,7 @@ const dismissReport = async () => {
         selectedReport.value = null
         await Promise.all([fetchReports(), fetchStats()])
     } catch (error) {
-        alert(error.data?.message || 'Error')
+        toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     } finally {
         actionLoading.value = false
     }

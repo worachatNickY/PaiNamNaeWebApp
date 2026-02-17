@@ -66,7 +66,7 @@ const searchRoutes = async (opts) => {
         ...(dateTo ? { lte: new Date(dateTo) } : {}),
       }
     } : {}),
-    ...(typeof seatsRequired === 'number' ? { availableSeats: seatsRequired } : {}),
+    ...(typeof seatsRequired === 'number' ? { availableSeats: { gte: seatsRequired } } : {}),
     ...(q ? {
       OR: [
         { routeSummary: { contains: q, mode: 'insensitive' } },

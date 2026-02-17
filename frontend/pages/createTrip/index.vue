@@ -340,6 +340,20 @@ const handleSubmit = async () => {
         return
     }
 
+    // Validate availableSeats (must be positive integer 1-20)
+    const seats = parseInt(form.availableSeats)
+    if (isNaN(seats) || seats < 1 || seats > 20) {
+        toast.error('จำนวนที่นั่งไม่ถูกต้อง', 'กรุณาระบุจำนวนที่นั่งระหว่าง 1-20 ที่นั่ง')
+        return
+    }
+
+    // Validate pricePerSeat (must be positive number)
+    const price = parseFloat(form.pricePerSeat)
+    if (isNaN(price) || price <= 0 || price > 10000) {
+        toast.error('ราคาไม่ถูกต้อง', 'กรุณาระบุราคาระหว่าง 1-10,000 บาท')
+        return
+    }
+
     // Validate start/end point text
     if (!form.startPoint || !form.endPoint) {
         toast.error('ข้อมูลไม่ครบถ้วน', 'กรุณาระบุจุดเริ่มต้นและจุดปลายทาง')

@@ -495,7 +495,6 @@ module.exports = {
   adminCreateBooking,
   createBooking,
   adminUpdateBooking,
-  adminCreateBooking,
   getMyBookings,
   getBookingById,
   updateBookingStatus,

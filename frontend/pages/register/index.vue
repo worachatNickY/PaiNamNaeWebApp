@@ -304,7 +304,7 @@ const clearErrors = () => {
 const validationFunctions = [
   () => {
     clearErrors();
-    if (!formData.username || formData.username.length < 4) errors.username = 'ชื่อผู้ใช้ต้องมีอย่างน้อย 4 ตัวอักษร';
+    if (!formData.username || formData.username.length < 6) errors.username = 'ชื่อผู้ใช้ต้องมีอย่างน้อย 6 ตัวอักษร';
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) errors.email = 'รูปแบบอีเมลไม่ถูกต้อง';
     if (!formData.password || formData.password.length < 8) errors.password = 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร';
     if (formData.password !== formData.confirmPassword || !formData.confirmPassword) errors.confirmPassword = 'รหัสผ่านไม่ตรงกัน';
@@ -314,7 +314,7 @@ const validationFunctions = [
     clearErrors();
     if (!formData.firstName.trim()) errors.firstName = 'กรุณากรอกชื่อจริง';
     if (!formData.lastName.trim()) errors.lastName = 'กรุณากรอกนามสกุล';
-    if (!/^\d{9,10}$/.test(formData.phoneNumber)) errors.phoneNumber = 'รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง';
+    if (!/^\d{10}$/.test(formData.phoneNumber)) errors.phoneNumber = 'เบอร์โทรศัพท์ต้องมี 10 หลัก';
     if (!formData.gender) errors.gender = 'กรุณาเลือกเพศ';
     return Object.keys(errors).length === 0;
   },

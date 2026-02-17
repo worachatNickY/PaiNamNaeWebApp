@@ -9,8 +9,8 @@ const prisma = require('../utils/prisma');
  */
 const getActivityLogs = asyncHandler(async (req, res) => {
     const {
-        page = 1,
-        limit = 20,
+        page: pageParam = '1',
+        limit: limitParam = '20',
         userId,
         userEmail,
         activityType,
@@ -21,7 +21,10 @@ const getActivityLogs = asyncHandler(async (req, res) => {
         sortOrder = 'desc'
     } = req.query;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    // Safe parsing with validation
+    const page = Math.max(1, parseInt(pageParam) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(limitParam) || 20));
+    const skip = (page - 1) * limit;
 
     // Build where clause
     const where = {};
@@ -64,7 +67,7 @@ const getActivityLogs = asyncHandler(async (req, res) => {
             where,
             orderBy: { [sortBy]: sortOrder },
             skip,
-            take: parseInt(limit)
+            take: limit
         }),
         prisma.activityLog.count({ where })
     ]);
@@ -73,10 +76,10 @@ const getActivityLogs = asyncHandler(async (req, res) => {
         success: true,
         data: logs,
         pagination: {
-            page: parseInt(page),
-            limit: parseInt(limit),
+            page,
+            limit,
             total,
-            totalPages: Math.ceil(total / parseInt(limit))
+            totalPages: Math.ceil(total / limit)
         }
     });
 });

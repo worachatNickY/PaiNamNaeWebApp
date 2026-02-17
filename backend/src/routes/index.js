@@ -14,6 +14,16 @@ const driverReportRoutes = require('./driverReport.routes'); // PBI #13: Driver 
 
 const router = express.Router();
 
+// Health Check endpoint
+router.get('/health', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'API is running',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/vehicles', vehicleRoutes);

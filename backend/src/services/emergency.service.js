@@ -1,5 +1,6 @@
 const prisma = require('../utils/prisma');
 const { logActivity } = require('./activityLog.service');
+const ApiError = require('../utils/ApiError');
 
 /**
  * สร้างคำขอฉุกเฉิน (SOS)
@@ -12,7 +13,7 @@ const createEmergencyRequest = async (driverId, data, connectionInfo = {}) => {
     });
 
     if (!driver || driver.role !== 'DRIVER') {
-        throw new Error('Only verified drivers can create emergency requests');
+        throw new ApiError(403, 'Only verified drivers can create emergency requests');
     }
 
     // ตรวจสอบว่ามี active emergency request อยู่หรือไม่
@@ -24,7 +25,7 @@ const createEmergencyRequest = async (driverId, data, connectionInfo = {}) => {
     });
 
     if (existingActive) {
-        throw new Error('You already have an active emergency request');
+        throw new ApiError(400, 'You already have an active emergency request');
     }
 
     // สร้าง emergency request
@@ -133,12 +134,12 @@ const getEmergencyById = async (id, userId = null, isAdmin = false) => {
     });
 
     if (!emergency) {
-        throw new Error('Emergency request not found');
+        throw new ApiError(404, 'Emergency request not found');
     }
 
     // ตรวจสอบสิทธิ์: Admin หรือ driver ที่เป็นเจ้าของ
     if (!isAdmin && emergency.driverId !== userId) {
-        throw new Error('Not authorized to view this emergency request');
+        throw new ApiError(403, 'Not authorized to view this emergency request');
     }
 
     return emergency;
@@ -154,15 +155,15 @@ const cancelEmergency = async (id, driverId, reason, connectionInfo = {}) => {
     });
 
     if (!emergency) {
-        throw new Error('Emergency request not found');
+        throw new ApiError(404, 'Emergency request not found');
     }
 
     if (emergency.driverId !== driverId) {
-        throw new Error('Not authorized to cancel this emergency request');
+        throw new ApiError(403, 'Not authorized to cancel this emergency request');
     }
 
     if (!['ACTIVE', 'RESPONDING'].includes(emergency.status)) {
-        throw new Error('Cannot cancel this emergency request');
+        throw new ApiError(400, 'Cannot cancel this emergency request');
     }
 
     const updated = await prisma.emergencyRequest.update({
@@ -251,11 +252,11 @@ const respondToEmergency = async (id, adminId, adminNotes) => {
     });
 
     if (!emergency) {
-        throw new Error('Emergency request not found');
+        throw new ApiError(404, 'Emergency request not found');
     }
 
     if (emergency.status !== 'ACTIVE') {
-        throw new Error('Emergency is not in ACTIVE status');
+        throw new ApiError(400, 'Emergency is not in ACTIVE status');
     }
 
     const updated = await prisma.emergencyRequest.update({
@@ -291,11 +292,11 @@ const resolveEmergency = async (id, adminId, adminNotes) => {
     });
 
     if (!emergency) {
-        throw new Error('Emergency request not found');
+        throw new ApiError(404, 'Emergency request not found');
     }
 
     if (!['ACTIVE', 'RESPONDING'].includes(emergency.status)) {
-        throw new Error('Cannot resolve this emergency');
+        throw new ApiError(400, 'Cannot resolve this emergency');
     }
 
     const updated = await prisma.emergencyRequest.update({
@@ -428,7 +429,7 @@ const deleteEmergencyContact = async (id, userId) => {
     });
 
     if (!contact || contact.userId !== userId) {
-        throw new Error('Contact not found or not authorized');
+        throw new ApiError(404, 'Contact not found or not authorized');
     }
 
     return prisma.emergencyContact.delete({ where: { id } });

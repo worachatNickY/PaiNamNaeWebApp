@@ -158,10 +158,13 @@
 </template>
 
 <script setup>
+import { useToast } from '~/composables/useToast'
+
 definePageMeta({
     middleware: 'auth'
 })
 
+const { toast } = useToast()
 const { $api } = useNuxtApp()
 
 const contacts = ref([])
@@ -202,7 +205,7 @@ const saveContact = async () => {
         await fetchContacts()
         resetForm()
     } catch (error) {
-        alert(error.data?.message || 'เกิดข้อผิดพลาด')
+        toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     } finally {
         saving.value = false
     }
@@ -230,7 +233,7 @@ const deleteContact = async (id) => {
         await $api(`/emergency/contacts/${id}`, { method: 'DELETE' })
         await fetchContacts()
     } catch (error) {
-        alert(error.data?.message || 'เกิดข้อผิดพลาด')
+        toast.error('เกิดข้อผิดพลาด', error.data?.message || 'ไม่สามารถดำเนินการได้')
     }
 }
 
