@@ -79,9 +79,18 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 (async () => {
     try {
+        // Run migrations in production before starting server
+        if (process.env.NODE_ENV === 'production') {
+            console.log('🔄 Running database migrations...');
+            const { execSync } = require('child_process');
+            execSync('npx prisma migrate deploy', { stdio: 'inherit' });
+            console.log('✅ Migrations completed');
+        }
+        
         await ensureAdmin();
     } catch (e) {
         console.error('Admin bootstrap failed:', e);
+        // Don't exit - let server start anyway for debugging
     }
 
     app.listen(PORT, () => {

@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
+    "start:migrate": "npx prisma migrate deploy && node server.js",
     "dev": "nodemon server.js",
     "jobs": "node runScheduledJobs.js",
     "jobs:hard-delete": "node -e \"require('./src/jobs/scheduledJobs').hardDeleteUsers().then(console.log)\"",
