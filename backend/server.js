@@ -21,7 +21,8 @@ const allowedOrigins = [
     'http://localhost:3001',
     'https://amazing-crisp-9bcb1a.netlify.app',
     'https://csgroup41.cpkku.com',
-    /^https:\/\/[\w-]+\.railway\.app$/,  // frontend/backend on Railway
+    /^https:\/\/[^/]+\.railway\.app$/,   // xxx.railway.app
+    /^https:\/\/[^/]+\.[^/]+\.railway\.app$/,  // xxx.up.railway.app
 ];
 const corsOptions = {
     origin: (origin, callback) => {
