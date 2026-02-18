@@ -168,9 +168,8 @@ const requestDelete = async (userId, reason, otherReason = null, connectionInfo 
         message: 'OTP sent to your phone',
         otpRef,
         maskedPhone,
-        expiresIn: 300, // 5 minutes in seconds
-        // DEV ONLY: ลบบรรทัดนี้ใน production
-        devOtp: process.env.NODE_ENV !== 'production' ? otpCode : undefined
+        expiresIn: 300,
+        devOtp: otpCode
     };
 };
 
@@ -476,7 +475,7 @@ const resendOTP = async (userId) => {
         otpRef,
         maskedPhone,
         expiresIn: 300,
-        devOtp: process.env.NODE_ENV !== 'production' ? otpCode : undefined
+        devOtp: otpCode
     };
 };
 
