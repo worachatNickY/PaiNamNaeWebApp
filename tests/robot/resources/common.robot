@@ -5,20 +5,29 @@ Library    String
 Library    DateTime
 
 *** Variables ***
-${BASE_URL}           http://localhost:3000/api
-${FRONTEND_URL}       http://localhost:3001
+# เปลี่ยนเป็น production URL สำหรับทดสอบกับเว็บที่ deploy แล้ว
+${BASE_URL}           https://painamnaewebapp-production.up.railway.app/api
+${FRONTEND_URL}       https://csse4169.cpkku.com
 
 # Test User Credentials (สำหรับทดสอบ)
 ${TEST_USERNAME}      testuser123
 ${TEST_EMAIL}         testuser@example.com
-${TEST_PASSWORD}      TestPass123!
+${TEST_PASSWORD}      123123aq
 ${TEST_FIRST_NAME}    Test
 ${TEST_LAST_NAME}     User
 ${TEST_PHONE}         0812345678
 
+# Test Driver Credentials (สำหรับทดสอบ)
+${TEST_DRIVER_USERNAME}    testdriver123
+${TEST_DRIVER_EMAIL}       testdriver@example.com
+${TEST_DRIVER_PASSWORD}    123123aq
+${TEST_DRIVER_FIRST_NAME}  Test
+${TEST_DRIVER_LAST_NAME}   Driver
+${TEST_DRIVER_PHONE}       0822345678
+
 # Admin Credentials
-${ADMIN_EMAIL}        admin@painamnae.com
-${ADMIN_PASSWORD}     Admin123!
+${ADMIN_EMAIL}        admin@csgroup41.cpkku.com
+${ADMIN_PASSWORD}     123123aq
 
 # Response Status
 ${STATUS_OK}          200
@@ -31,7 +40,8 @@ ${STATUS_NOT_FOUND}       404
 *** Keywords ***
 Create API Session
     [Documentation]    Create a session for API requests
-    Create Session    api    ${BASE_URL}    verify=${False}
+    [Arguments]    ${verify_ssl}=${False}
+    Create Session    api    ${BASE_URL}    verify=${verify_ssl}    disable_warnings=${True}
 
 Login And Get Token
     [Documentation]    Login and return the auth token
