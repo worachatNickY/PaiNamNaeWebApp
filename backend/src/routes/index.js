@@ -31,7 +31,7 @@ router.use('/routes', routeRoutes);
 router.use('/driver-verifications', driverVerifRoutes);
 router.use('/bookings', bookingRoutes);
 router.use('/notifications', notificationRoutes);
-router.use('/api/maps', mapRoutes);
+router.use('/maps', mapRoutes);
 router.use('/account', accountRoutes); // PBI #16: Account Deletion
 router.use('/activity-logs', activityLogRoutes); // Activity Log (Admin)
 router.use('/emergency', emergencyRoutes); // PBI #8: Emergency SOS
