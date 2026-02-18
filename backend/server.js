@@ -21,6 +21,7 @@ const allowedOrigins = [
     'http://localhost:3001',
     'https://amazing-crisp-9bcb1a.netlify.app',
     'https://csgroup41.cpkku.com',
+    'https://csse4169.cpkku.com',
     /^https:\/\/[^/]+\.railway\.app$/,   // xxx.railway.app
     /^https:\/\/[^/]+\.[^/]+\.railway\.app$/,  // xxx.up.railway.app
 ];
