@@ -16,9 +16,24 @@ module.exports = async function ensureAdmin() {
         console.warn('⚠️  Skipping auto-admin bootstrap: ADMIN_EMAIL/ADMIN_USERNAME/ADMIN_PASSWORD not fully set.');
         return;
     }
-    const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
-    if (adminCount > 0) {
-        console.log('✔ Admin already exists. Skipping admin bootstrap.');
+    const existingAdmin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+
+    if (existingAdmin) {
+        // อัปเดต email/username/password ของ Admin เดิมให้ตรงกับ env
+        const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, SALT_ROUNDS);
+        await prisma.user.update({
+            where: { id: existingAdmin.id },
+            data: {
+                email: ADMIN_EMAIL,
+                username: ADMIN_USERNAME,
+                password: passwordHash,
+                ...(ADMIN_FIRST_NAME ? { firstName: ADMIN_FIRST_NAME } : {}),
+                ...(ADMIN_LAST_NAME ? { lastName: ADMIN_LAST_NAME } : {}),
+                isVerified: true,
+                isActive: true,
+            },
+        });
+        console.log(`🔐 Admin updated (${ADMIN_EMAIL}).`);
         return;
     }
 
