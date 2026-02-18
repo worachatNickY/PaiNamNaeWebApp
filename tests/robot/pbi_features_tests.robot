@@ -13,11 +13,11 @@ Suite Teardown    Delete All Sessions
 *** Variables ***
 # Test credentials - ต้องมี user เหล่านี้ในระบบสำหรับทดสอบ
 ${TEST_USER_EMAIL}        testuser@example.com
-${TEST_USER_PASSWORD}     TestPass123!
+${TEST_USER_PASSWORD}     123123aq
 ${TEST_DRIVER_EMAIL}      testdriver@example.com
-${TEST_DRIVER_PASSWORD}   TestPass123!
-${ADMIN_EMAIL}            admin@painamnae.com
-${ADMIN_PASSWORD}         Admin123!
+${TEST_DRIVER_PASSWORD}   123123aq
+${ADMIN_EMAIL}            admin@csgroup41.cpkku.com
+${ADMIN_PASSWORD}         123123aq
 
 *** Test Cases ***
 # ==============================================================================
