@@ -46,20 +46,22 @@ const notifyAdmins = async (type, title, body, link = null, metadata = null) => 
  */
 const logActivity = async (userId, userEmail, activityType, description, metadata, connectionInfo = {}) => {
     try {
-        await prisma.activityLog.create({
+        console.log('📝 Logging activity:', { userId, userEmail, activityType });
+        const log = await prisma.activityLog.create({
             data: {
                 userId,
                 userEmail,
                 activityType,
                 description,
-                metadata,
+                metadata: metadata || undefined,
                 ipAddress: connectionInfo.ipAddress || null,
                 userAgent: connectionInfo.userAgent || null,
                 deviceInfo: connectionInfo.deviceInfo || null
             }
         });
+        console.log('✅ Activity logged:', log.id);
     } catch (error) {
-        console.error('Failed to log activity:', error.message);
+        console.error('❌ Failed to log activity:', error);
     }
 };
 
