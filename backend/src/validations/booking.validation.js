@@ -12,8 +12,17 @@ const idParamSchema = z.object({
   id: z.string().cuid({ message: 'Invalid booking ID format' }),
 });
 
+// รายการ status ที่คนขับส่งได้ (รวม phase การเดินทาง)
+const DRIVER_BOOKING_STATUS_VALUES = [
+  'CONFIRMED',
+  'REJECTED',
+  'DRIVER_ON_THE_WAY',
+  'PASSENGER_PICKED_UP',
+  'COMPLETED',
+];
+
 const updateBookingStatusSchema = z.object({
-  status: z.nativeEnum(BookingStatus, {
+  status: z.enum(DRIVER_BOOKING_STATUS_VALUES, {
     required_error: 'Status is required',
     invalid_type_error: 'Invalid status value',
   }),

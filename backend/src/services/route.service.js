@@ -12,7 +12,9 @@ const baseInclude = {
       lastName: true,
       gender: true,
       profilePicture: true,
-      isVerified: true
+      isVerified: true,
+      averageRating: true,
+      reviewCount: true
     }
   },
   vehicle: {
@@ -222,7 +224,7 @@ const searchRoutesByEndpointProximity = async (opts = {}) => {
     ? await prisma.route.findMany({
       where: { id: { in: idList } },
       include: {
-        driver: { select: { id: true, firstName: true, lastName: true, gender: true, profilePicture: true, isVerified: true } },
+        driver: { select: { id: true, firstName: true, lastName: true, gender: true, profilePicture: true, isVerified: true, averageRating: true, reviewCount: true } },
         vehicle: { select: { vehicleModel: true, vehicleType: true, photos: true, amenities: true } },
       },
     })
@@ -313,7 +315,7 @@ const cancelRoute = async (routeId, driverId, opts = {}) => {
     include: {
       driver: { select: { id: true } },
       bookings: {
-        where: { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } },
+        where: { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.DRIVER_ON_THE_WAY, BookingStatus.PASSENGER_PICKED_UP] } },
         include: { passenger: { select: { id: true } } }
       }
     }
@@ -326,7 +328,7 @@ const cancelRoute = async (routeId, driverId, opts = {}) => {
 
   const now = new Date();
   const affected = route.bookings || [];
-  const hasConfirmed = affected.some(b => b.status === BookingStatus.CONFIRMED);
+  const hasConfirmed = affected.some(b => [BookingStatus.CONFIRMED, BookingStatus.DRIVER_ON_THE_WAY, BookingStatus.PASSENGER_PICKED_UP].includes(b.status));
 
   await prisma.$transaction(async (tx) => {
     //ยกเลิก Route
@@ -342,7 +344,7 @@ const cancelRoute = async (routeId, driverId, opts = {}) => {
     if (affected.length) {
       //ยกเลิก Booking ที่ค้างทั้งหมด
       await tx.booking.updateMany({
-        where: { routeId, status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } },
+        where: { routeId, status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.DRIVER_ON_THE_WAY, BookingStatus.PASSENGER_PICKED_UP] } },
         data: {
           status: BookingStatus.CANCELLED,
           cancelledBy: 'DRIVER',

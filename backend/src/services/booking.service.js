@@ -320,6 +320,14 @@ const getBookingById = async (id) => {
   });
 };
 
+const TRIP_PHASE_ORDER = {
+  [BookingStatus.CONFIRMED]: 0,
+  [BookingStatus.DRIVER_ON_THE_WAY]: 1,
+  [BookingStatus.PASSENGER_PICKED_UP]: 2,
+  [BookingStatus.COMPLETED]: 3,
+};
+const ONE_HOUR_MS = 60 * 60 * 1000;
+
 const updateBookingStatus = async (id, status, userId) => {
   const booking = await prisma.booking.findUnique({
     where: { id },
@@ -330,6 +338,29 @@ const updateBookingStatus = async (id, status, userId) => {
     throw new ApiError(403, 'Forbidden');
   }
 
+  const current = booking.status;
+  const departureTime = new Date(booking.route.departureTime).getTime();
+  const now = Date.now();
+
+  // การเปลี่ยนสถานะต้องเป็นลำดับ: CONFIRMED → DRIVER_ON_THE_WAY → PASSENGER_PICKED_UP → COMPLETED
+  if (status === BookingStatus.DRIVER_ON_THE_WAY) {
+    if (current !== BookingStatus.CONFIRMED) {
+      throw new ApiError(400, 'Can only start trip from confirmed booking');
+    }
+    // ไม่บังคับช่วงเวลา เพื่อให้เทส/เดโมได้เสมอ (ต้องการบังคับ uncomment ด้านล่าง)
+    // if (now < departureTime - ONE_HOUR_MS) {
+    //   throw new ApiError(400, 'ปุ่ม "กำลังไปรับผู้โดยสาร" ใช้ได้เมื่อถึงเวลาเดินทางหรือก่อนเวลาไม่เกิน 1 ชั่วโมง');
+    // }
+  } else if (status === BookingStatus.PASSENGER_PICKED_UP) {
+    if (current !== BookingStatus.DRIVER_ON_THE_WAY) {
+      throw new ApiError(400, 'Invalid transition. Start with "กำลังไปรับผู้โดยสาร" first.');
+    }
+  } else if (status === BookingStatus.COMPLETED) {
+    if (current !== BookingStatus.PASSENGER_PICKED_UP) {
+      throw new ApiError(400, 'Invalid transition. Complete "รับผู้โดยสารแล้ว" before ending trip.');
+    }
+  }
+
   return prisma.$transaction(async (tx) => {
     const updated = await tx.booking.update({
       where: { id },
@@ -337,7 +368,6 @@ const updateBookingStatus = async (id, status, userId) => {
     });
 
     if (status === BookingStatus.REJECTED) {
-      // คืนที่นั่งให้ route
       const refunded = booking.numberOfSeats;
       const newSeats = booking.route.availableSeats + refunded;
       const routeUpdates = { availableSeats: newSeats };
@@ -348,7 +378,6 @@ const updateBookingStatus = async (id, status, userId) => {
         where: { id: booking.route.id },
         data: routeUpdates,
       });
-
       await tx.notification.create({
         data: {
           userId: booking.passengerId,
@@ -358,11 +387,9 @@ const updateBookingStatus = async (id, status, userId) => {
           metadata: { kind: 'BOOKING_STATUS', bookingId: id, routeId: booking.route.id, status: 'REJECTED' }
         }
       });
-
     }
 
     if (status === BookingStatus.CONFIRMED) {
-      // 🔔 แจ้งเตือน Passenger เมื่อถูกยืนยัน
       await tx.notification.create({
         data: {
           userId: booking.passengerId,
@@ -373,6 +400,41 @@ const updateBookingStatus = async (id, status, userId) => {
         }
       });
     }
+
+    if (status === BookingStatus.DRIVER_ON_THE_WAY) {
+      await tx.notification.create({
+        data: {
+          userId: booking.passengerId,
+          type: 'BOOKING',
+          title: 'คนขับกำลังไปรับคุณ',
+          body: 'คนขับได้ออกเดินทางเพื่อมารับคุณแล้ว',
+          metadata: { kind: 'BOOKING_STATUS', bookingId: id, routeId: booking.route.id, status: 'DRIVER_ON_THE_WAY' }
+        }
+      });
+    }
+    if (status === BookingStatus.PASSENGER_PICKED_UP) {
+      await tx.notification.create({
+        data: {
+          userId: booking.passengerId,
+          type: 'BOOKING',
+          title: 'รับคุณแล้ว — กำลังเดินทาง',
+          body: 'คนขับได้รับคุณแล้ว กำลังเดินทางไปยังจุดหมาย',
+          metadata: { kind: 'BOOKING_STATUS', bookingId: id, routeId: booking.route.id, status: 'PASSENGER_PICKED_UP' }
+        }
+      });
+    }
+    if (status === BookingStatus.COMPLETED) {
+      await tx.notification.create({
+        data: {
+          userId: booking.passengerId,
+          type: 'BOOKING',
+          title: 'การเดินทางสิ้นสุดแล้ว',
+          body: 'ขอบคุณที่ใช้บริการ คุณสามารถให้คะแนนและรีวิวคนขับได้ที่เมนู รีวิว',
+          metadata: { kind: 'BOOKING_STATUS', bookingId: id, routeId: booking.route.id, status: 'COMPLETED' }
+        }
+      });
+    }
+
     return updated;
   });
 };
@@ -469,7 +531,7 @@ const adminDeleteBooking = async (id) => {
   // แอดมินลบได้ทุกสถานะ แต่ถ้าเป็น PENDING/CONFIRMED ให้คืนที่นั่งให้เส้นทางด้วย
   return prisma.$transaction(async (tx) => {
     if (booking.route) {
-      if (booking.status === BookingStatus.PENDING || booking.status === BookingStatus.CONFIRMED) {
+      if ([BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.DRIVER_ON_THE_WAY, BookingStatus.PASSENGER_PICKED_UP].includes(booking.status)) {
         const refunded = booking.numberOfSeats;
         const newSeats = booking.route.availableSeats + refunded;
 

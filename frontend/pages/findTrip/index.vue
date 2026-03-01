@@ -117,14 +117,19 @@
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div class="flex items-center mt-1">
+                                                <div class="flex items-center mt-1 gap-2">
                                                     <div class="flex text-yellow-400">
                                                         <span v-for="star in 5" :key="star">{{ star <=
                                                             route.driver.rating ? '★' : '☆' }}</span>
                                                     </div>
-                                                    <span class="ml-2 text-sm text-gray-600">
+                                                    <span class="text-sm text-gray-600">
                                                         {{ route.driver.rating }} ({{ route.driver.reviews }} รีวิว)
                                                     </span>
+                                                    <NuxtLink v-if="route.driver.id" :to="`/reviews/driver/${route.driver.id}?name=${encodeURIComponent(route.driver.name)}`"
+                                                        @click.stop
+                                                        class="text-xs font-medium text-blue-600 hover:underline">
+                                                        ดูรีวิว
+                                                    </NuxtLink>
                                                 </div>
                                             </div>
                                             <div class="text-right">
@@ -305,13 +310,18 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center">
+                                    <div class="flex items-center flex-wrap gap-2">
                                         <div class="flex text-sm text-yellow-400">
                                             <span v-for="star in 5" :key="star">{{ star <= bookingRoute.driver.rating
                                                 ? '★' : '☆' }}</span>
                                         </div>
-                                        <span class="ml-2 text-sm text-gray-600">{{ bookingRoute.driver.rating }} ({{
+                                        <span class="text-sm text-gray-600">{{ bookingRoute.driver.rating }} ({{
                                             bookingRoute.driver.reviews }} รีวิว)</span>
+                                        <NuxtLink v-if="bookingRoute.driver.id"
+                                            :to="`/reviews/driver/${bookingRoute.driver.id}?name=${encodeURIComponent(bookingRoute.driver.name)}`"
+                                            class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                                            ดูรีวิว
+                                        </NuxtLink>
                                     </div>
                                 </div>
                             </div>
@@ -518,7 +528,7 @@ const headScripts = []
 if (process.client && !window.google?.maps) {
     headScripts.push({
         key: 'gmaps',                        // ทำให้ Nuxt dedupe
-        src: `https://maps.googleapis.com/maps/api/js?key=${config.public.googleMapsApiKey}&libraries=places,geometry&callback=${GMAPS_CB}`,
+        src: `https://maps.googleapis.com/maps/api/js?key=${config.public.googleMapsApiKey}&libraries=places,geometry&loading=async&callback=${GMAPS_CB}`,
         async: true,
         defer: true
     })
@@ -677,10 +687,11 @@ async function handleSearch() {
                 originAddress: route.startLocation?.address ? cleanAddr(route.startLocation.address) : null,
                 destinationAddress: route.endLocation?.address ? cleanAddr(route.endLocation.address) : null,
                 driver: {
+                    id: route.driver?.id,
                     name: `${route.driver?.firstName || ''} ${route.driver?.lastName || ''}`.trim() || 'ไม่ระบุชื่อ',
                     image: route.driver?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(route.driver?.firstName || 'U')}&background=random&size=64`,
-                    rating: 4.5,
-                    reviews: Math.floor(Math.random() * 50) + 5,
+                    rating: route.driver?.averageRating ?? 4.5,
+                    reviews: route.driver?.reviewCount ?? 0,
                     isVerified: !!route.driver?.isVerified
                 },
                 carDetails: route.vehicle

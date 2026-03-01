@@ -6,10 +6,21 @@
                 <p class="mt-2 text-gray-600">จัดการและติดตามการเดินทางทั้งหมดของคุณ</p>
             </div>
 
-            <div class="p-6 mb-8 bg-white border border-gray-300 rounded-lg shadow-md">
-                <div class="flex flex-wrap gap-2">
-                    <button v-for="tab in tabs" :key="tab.status" @click="activeTab = tab.status"
-                        :class="['tab-button px-4 py-2 rounded-md font-medium', { 'active': activeTab === tab.status }]">
+            <!-- แถบแท็บด้านบน แยกตามสถานะการเดินทาง (มุมมองผู้โดยสาร) -->
+            <div class="p-4 mb-8 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.status"
+                        type="button"
+                        @click="activeTab = tab.status"
+                        :class="[
+                            'tab-button inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                            activeTab === tab.status
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-800'
+                        ]"
+                    >
                         {{ tab.label }} ({{ getTripCount(tab.status) }})
                     </button>
                 </div>
@@ -44,6 +55,12 @@
                                                 class="status-badge status-pending">รอดำเนินการ</span>
                                             <span v-else-if="trip.status === 'confirmed'"
                                                 class="status-badge status-confirmed">ยืนยันแล้ว</span>
+                                            <span v-else-if="trip.status === 'driver_on_the_way'"
+                                                class="status-badge status-driver-on-the-way">คนขับกำลังไปรับ</span>
+                                            <span v-else-if="trip.status === 'passenger_picked_up'"
+                                                class="status-badge status-passenger-picked-up">รับคุณแล้ว — กำลังเดินทาง</span>
+                                            <span v-else-if="trip.status === 'completed'"
+                                                class="status-badge status-completed">สิ้นสุดการเดินทางแล้ว</span>
                                             <span v-else-if="trip.status === 'rejected'"
                                                 class="status-badge status-rejected">ปฏิเสธ</span>
                                             <span v-else-if="trip.status === 'cancelled'"
@@ -261,6 +278,9 @@ const GMAPS_CB = '__gmapsReady__'
 const tabs = [
     { status: 'pending', label: 'รอดำเนินการ' },
     { status: 'confirmed', label: 'ยืนยันแล้ว' },
+    { status: 'driver_on_the_way', label: 'คนขับกำลังไปรับ' },
+    { status: 'passenger_picked_up', label: 'รับคุณแล้ว — กำลังเดินทาง' },
+    { status: 'completed', label: 'สิ้นสุดการเดินทางแล้ว' },
     { status: 'rejected', label: 'ปฏิเสธ' },
     { status: 'cancelled', label: 'ยกเลิก' },
     { status: 'all', label: 'ทั้งหมด' }
@@ -722,7 +742,7 @@ useHead({
             ? [
                 {
                     key: 'gmaps',
-                    src: `https://maps.googleapis.com/maps/api/js?key=${useRuntimeConfig().public.googleMapsApiKey}&libraries=places,geometry&callback=__gmapsReady__`,
+                    src: `https://maps.googleapis.com/maps/api/js?key=${useRuntimeConfig().public.googleMapsApiKey}&libraries=places,geometry&loading=async&callback=__gmapsReady__`,
                     async: true,
                     defer: true
                 }
@@ -780,24 +800,7 @@ function initializeMap() {
 }
 
 .tab-button {
-    transition: all 0.3s ease;
-}
-
-.tab-button.active {
-    background-color: #3b82f6;
-    color: white;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-}
-
-.tab-button:not(.active) {
-    background-color: white;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
-}
-
-.tab-button:not(.active):hover {
-    background-color: #f9fafb;
-    color: #374151;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #map {
@@ -823,6 +826,21 @@ function initializeMap() {
 .status-confirmed {
     background-color: #d1fae5;
     color: #065f46;
+}
+
+.status-driver-on-the-way {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.status-passenger-picked-up {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+.status-completed {
+    background-color: #e0e7ff;
+    color: #3730a3;
 }
 
 .status-rejected {

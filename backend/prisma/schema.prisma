@@ -32,6 +32,9 @@ enum BookingStatus {
   CONFIRMED
   REJECTED
   CANCELLED
+  DRIVER_ON_THE_WAY   // กำลังไปรับผู้โดยสาร
+  PASSENGER_PICKED_UP // รับผู้โดยสารแล้ว
+  COMPLETED           // สิ้นสุดการเดินทาง (ผู้โดยสารรีวิวได้)
 }
 
 enum CancelReason {
@@ -107,6 +110,10 @@ model User {
   passengerSuspendedUntil DateTime?
   driverSuspendedUntil    DateTime?
   
+  // PBI #15: Driver rating (updated when driver receives reviews)
+  averageRating           Float?   @default(0)
+  reviewCount             Int      @default(0)
+  
   // PBI #16: Account Removal fields
   status                UserStatus @default(ACTIVE)
   deletedAt             DateTime?
@@ -127,6 +134,10 @@ model User {
   // PBI #13: Driver Reports
   reportsMade           DriverReport[]      @relation("PassengerReports")
   reportsReceived       DriverReport[]      @relation("DriverReports")
+  
+  // PBI #15: Reviews (as passenger gives review, as driver receives)
+  reviewsGiven          Review[]            @relation("PassengerReviews")
+  reviewsReceived       Review[]             @relation("DriverReviews")
 
   @@index([role])
   @@index([isActive])
@@ -254,6 +265,29 @@ model Booking {
   
   // PBI #13: Driver Reports
   reports         DriverReport[]
+  // PBI #15: Reviews (one review per passenger per booking)
+  reviews         Review[]
+}
+
+// ==================== PBI #15: Ride Reviews ====================
+model Review {
+  id            String   @id @default(cuid())
+  bookingId     String   @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  passengerId   String
+  passenger     User     @relation("PassengerReviews", fields: [passengerId], references: [id], onDelete: Cascade)
+  driverId      String
+  driver        User     @relation("DriverReviews", fields: [driverId], references: [id], onDelete: Cascade)
+  rating        Int      // 1-5
+  tags          Json?    @db.Json // e.g. ["on_time", "clean", "friendly"]
+  comment       String?
+  isAnonymous  Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([driverId])
+  @@index([passengerId])
+  @@index([bookingId])
+  @@index([createdAt])
 }
 
 // ==================== PBI #16: Deletion Request ====================
