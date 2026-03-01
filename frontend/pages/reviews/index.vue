@@ -2,7 +2,7 @@
     <div class="min-h-screen bg-gray-50">
         <div class="px-4 py-8 mx-auto max-w-4xl sm:px-6">
             <h1 class="text-2xl font-bold text-gray-900">รีวิวการเดินทาง</h1>
-            <p class="mt-1 text-gray-600">รีวิวได้ภายใน 7 วันหลังเดินทางสำเร็จ และทุกคนจะเห็นรีวิว</p>
+            <p class="mt-1 text-gray-600">รีวิวได้ภายใน 7 วันหลังเดินทางสำเร็จ และ ทุกคนจะเห็นรีวิวของคุณ</p>
 
             <!-- ไม่ล็อกอิน: แสดงเฉพาะรีวิวล่าสุด + ปุ่มเข้าสู่ระบบ -->
             <div v-if="!token" class="p-4 mt-6 bg-amber-50 border border-amber-200 rounded-xl">
@@ -40,7 +40,7 @@
 
                 <!-- รีวิวที่ฉันเขียน -->
                 <section class="mt-10">
-                    <h2 class="text-lg font-semibold text-gray-900">รีวิวที่ฉันเขียน</h2>
+                    <h2 class="text-lg font-semibold text-gray-900">รีวิวที่ของคุณ</h2>
                     <div v-if="loadingMy" class="p-6 mt-4 bg-white rounded-xl shadow">กำลังโหลด...</div>
                     <div v-else-if="!myReviews.length" class="p-6 mt-4 bg-white rounded-xl shadow text-gray-500">
                         ยังไม่มีรีวิวที่คุณเขียน
@@ -63,7 +63,7 @@
             <!-- รีวิวล่าสุด (ทุกคนเห็น ไม่ต้องล็อกอิน) -->
             <section class="mt-10">
                 <h2 class="text-lg font-semibold text-gray-900">รีวิวล่าสุด</h2>
-                <p class="mt-1 text-sm text-gray-600">รีวิวจากผู้โดยสาร — ทุกคนดูได้</p>
+                <p class="mt-1 text-sm text-gray-600">รีวิวจากผู้โดยสาร — ทุกคนสามารถดูรีวิวได้</p>
                 <div v-if="loadingRecent" class="p-6 mt-4 bg-white rounded-xl shadow">กำลังโหลด...</div>
                 <div v-else-if="!recentReviews.length" class="p-6 mt-4 bg-white rounded-xl shadow text-gray-500">
                     ยังไม่มีรีวิว
