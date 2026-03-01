@@ -26,22 +26,27 @@
                         </div>
 
                         <!-- ผู้โดยสาร: ลิงก์เดี่ยว ไม่มีดรอปดาวน์ -->
-                        <div v-if="user && user.role === 'PASSENGER'">
+                        <div v-if="user && user.role === 'PASSENGER'" class="flex items-center gap-4">
                             <NuxtLink to="/myTrip"
                                 class="flex items-center text-gray-600 transition-colors duration-200 hover:text-blue-600"
                                 :class="{ 'text-blue-600': $route.path.startsWith('/myTrip') }">
                                 การเดินทางของฉัน
                             </NuxtLink>
+                            <NuxtLink to="/reviews"
+                                class="text-gray-600 transition-colors duration-200 hover:text-blue-600"
+                                :class="{ 'text-blue-600': $route.path.startsWith('/reviews') }">
+                                รีวิว
+                            </NuxtLink>
                         </div>
 
                         <!-- คนขับ: แสดงคำว่า การเดินทางทั้งหมด + ดรอปดาวน์ (การเดินทางของฉัน / คำขอจองเส้นทางของฉัน) -->
                         <div v-if="user && (user.role === 'DRIVER' || user.role === 'ADMIN')">
-                            <div class="relative dropdown-trigger">
+                            <div class="relative dropdown-trigger group">
                                 <NuxtLink to="/myTrip"
-                                    class="flex items-center text-gray-600 transition-colors duration-200 hover:text-blue-600"
-                                    :class="{ 'text-blue-600': $route.path.startsWith('/myTrip') || $route.path.startsWith('/myRoute') }">
+                                    class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-gray-600 transition-all duration-200 hover:bg-blue-50 hover:text-blue-700"
+                                    :class="{ 'text-blue-600 bg-blue-50/50': $route.path.startsWith('/myTrip') || $route.path.startsWith('/myRoute') || $route.path.startsWith('/reviews') }">
                                     การเดินทางทั้งหมด
-                                    <svg class="w-4 h-4 ml-1 transition-transform duration-200" fill="none"
+                                    <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none"
                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 9l-7 7-7-7"></path>
@@ -49,14 +54,21 @@
                                 </NuxtLink>
 
                                 <div
-                                    class="absolute right-0 py-2 mt-5 bg-white border border-gray-200 rounded-lg shadow-lg dropdown-menu top-full w-50 user-dropdown-arrow">
+                                    class="absolute right-0 top-full z-50 mt-2 min-w-[220px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1.5 shadow-xl shadow-gray-200/50 dropdown-menu trip-dropdown-panel">
                                     <NuxtLink to="/myTrip"
-                                        class="flex items-center block w-full px-4 py-2 text-left text-gray-700 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600">
+                                        class="block px-4 py-2.5 text-left font-medium text-gray-700 transition-colors duration-150 hover:bg-blue-50 hover:text-blue-700"
+                                        :class="{ 'bg-blue-50/70 text-blue-700': $route.path.startsWith('/myTrip') }">
                                         การเดินทางของฉัน
                                     </NuxtLink>
                                     <NuxtLink to="/myRoute"
-                                        class="flex items-center block w-full px-4 py-2 text-left text-gray-700 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-600">
+                                        class="block px-4 py-2.5 text-left font-medium text-gray-700 transition-colors duration-150 hover:bg-blue-50 hover:text-blue-700"
+                                        :class="{ 'bg-blue-50/70 text-blue-700': $route.path === '/myRoute' }">
                                         คำขอจองเส้นทางของฉัน
+                                    </NuxtLink>
+                                    <NuxtLink to="/reviews"
+                                        class="block px-4 py-2.5 text-left font-medium text-gray-700 transition-colors duration-150 hover:bg-blue-50 hover:text-blue-700"
+                                        :class="{ 'bg-blue-50/70 text-blue-700': $route.path.startsWith('/reviews') }">
+                                        รีวิว
                                     </NuxtLink>
                                 </div>
                             </div>
@@ -307,29 +319,43 @@
                             @click="closeMobileMenu">
                             การเดินทางของฉัน
                         </NuxtLink>
+                        <NuxtLink v-if="user && user.role === 'PASSENGER'" to="/reviews"
+                            class="block px-3 py-2 transition-colors duration-200 rounded-md"
+                            :class="$route.path.startsWith('/reviews') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'"
+                            @click="closeMobileMenu">
+                            รีวิว
+                        </NuxtLink>
 
                         <!-- คนขับ: เมนูย่อย 2 รายการ -->
                         <div v-else-if="user && (user.role === 'DRIVER' || user.role === 'ADMIN')" class="relative">
                             <button @click="toggleMobileTripMenu"
-                                class="flex items-center justify-between w-full px-3 py-2 text-left text-gray-600 transition-colors duration-200 rounded-md hover:text-blue-600 hover:bg-blue-50">
-                                การเดินทางทั้งหมด
-                                <svg class="w-4 h-4 transition-transform duration-200"
+                                class="flex items-center justify-between w-full px-3 py-2.5 text-left text-gray-600 transition-colors duration-200 rounded-lg hover:bg-blue-50 hover:text-blue-600">
+                                <span class="font-medium">การเดินทางทั้งหมด</span>
+                                <svg class="w-4 h-4 shrink-0 transition-transform duration-200"
                                     :class="{ 'rotate-180': isMobileTripMenuOpen }" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </button>
-                            <div v-show="isMobileTripMenuOpen" class="mt-1 ml-4">
+                            <div v-show="isMobileTripMenuOpen" class="mt-1 ml-4 space-y-0.5 border-l-2 border-blue-100 pl-4">
                                 <NuxtLink to="/myTrip"
-                                    class="block px-3 py-2 text-gray-500 transition-colors duration-200 rounded-md hover:text-blue-600 hover:bg-blue-50"
+                                    class="block rounded-lg px-3 py-2.5 font-medium text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                    :class="$route.path.startsWith('/myTrip') ? 'bg-blue-50 text-blue-700' : ''"
                                     @click="closeMobileMenu">
                                     การเดินทางของฉัน
                                 </NuxtLink>
                                 <NuxtLink to="/myRoute"
-                                    class="block px-3 py-2 text-gray-500 transition-colors duration-200 rounded-md hover:text-blue-600 hover:bg-blue-50"
+                                    class="block rounded-lg px-3 py-2.5 font-medium text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                    :class="$route.path === '/myRoute' ? 'bg-blue-50 text-blue-700' : ''"
                                     @click="closeMobileMenu">
                                     คำขอจองเส้นทางของฉัน
+                                </NuxtLink>
+                                <NuxtLink to="/reviews"
+                                    class="block rounded-lg px-3 py-2.5 font-medium text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+                                    :class="$route.path.startsWith('/reviews') ? 'bg-blue-50 text-blue-700' : ''"
+                                    @click="closeMobileMenu">
+                                    รีวิว
                                 </NuxtLink>
                             </div>
                         </div>
@@ -607,14 +633,28 @@ useHead({
 .dropdown-menu {
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
 }
 
 .dropdown-trigger:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+/* ลูกศรชี้ขึ้นสำหรับ dropdown การเดินทาง */
+.trip-dropdown-panel::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 24px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid white;
+    filter: drop-shadow(0 -1px 0 rgb(243 244 246));
 }
 
 .dropdown-arrow::before {

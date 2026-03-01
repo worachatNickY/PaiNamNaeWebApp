@@ -6,10 +6,21 @@
                 <p class="mt-2 text-gray-600">ดูและจัดการคำขอจองจากผู้โดยสารในเส้นทางที่คุณสร้าง</p>
             </div>
 
-            <div class="p-6 mb-8 bg-white border border-gray-300 rounded-lg shadow-md">
-                <div class="flex flex-wrap gap-2">
-                    <button v-for="tab in tabs" :key="tab.status" @click="activeTab = tab.status"
-                        :class="['tab-button px-4 py-2 rounded-md font-medium', { 'active': activeTab === tab.status }]">
+            <!-- แถบแท็บด้านบน แยกเป็นขั้นเป็นตอนตามรูป -->
+            <div class="p-4 mb-8 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.status"
+                        type="button"
+                        @click="activeTab = tab.status"
+                        :class="[
+                            'tab-button inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                            activeTab === tab.status
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-800'
+                        ]"
+                    >
                         {{ tab.label }} ({{ getTripCount(tab.status) }})
                     </button>
                 </div>
@@ -192,6 +203,12 @@
                                                 class="status-badge status-pending">รอดำเนินการ</span>
                                             <span v-else-if="trip.status === 'confirmed'"
                                                 class="status-badge status-confirmed">ยืนยันแล้ว</span>
+                                            <span v-else-if="trip.status === 'driver_on_the_way'"
+                                                class="status-badge status-driver-on-the-way">กำลังไปรับ</span>
+                                            <span v-else-if="trip.status === 'passenger_picked_up'"
+                                                class="status-badge status-passenger-picked-up">รับผู้โดยสารแล้ว</span>
+                                            <span v-else-if="trip.status === 'completed'"
+                                                class="status-badge status-completed">สิ้นสุดการเดินทางแล้ว</span>
                                             <span v-else-if="trip.status === 'rejected'"
                                                 class="status-badge status-rejected">ปฏิเสธ</span>
                                             <span v-else-if="trip.status === 'cancelled'"
@@ -336,7 +353,7 @@
                                     </div>
                                 </div>
 
-                                <div class="flex justify-end space-x-3" :class="{ 'mt-4': selectedTripId !== trip.id }">
+                                <div class="flex flex-wrap justify-end gap-2" :class="{ 'mt-4': selectedTripId !== trip.id }">
                                     <template v-if="trip.status === 'pending'">
                                         <button @click.stop="openConfirmModal(trip, 'confirm')"
                                             class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
@@ -348,10 +365,36 @@
                                         </button>
                                     </template>
 
-                                    <button v-else-if="trip.status === 'confirmed'"
-                                        class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
-                                        แชทกับผู้โดยสาร
+                                    <template v-else-if="trip.status === 'confirmed'">
+                                        <button v-if="canStartPickup(trip)"
+                                            @click.stop="updateTripPhase(trip, 'DRIVER_ON_THE_WAY')"
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-amber-500 rounded-md hover:bg-amber-600">
+                                            กำลังไปรับผู้โดยสาร
+                                        </button>
+                                        <button v-else
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
+                                            แชทกับผู้โดยสาร
+                                        </button>
+                                    </template>
+
+                                    <button v-else-if="trip.status === 'driver_on_the_way'"
+                                        @click.stop="updateTripPhase(trip, 'PASSENGER_PICKED_UP')"
+                                        class="px-4 py-2 text-sm text-white transition duration-200 bg-emerald-600 rounded-md hover:bg-emerald-700">
+                                        รับผู้โดยสารแล้ว
                                     </button>
+
+                                    <button v-else-if="trip.status === 'passenger_picked_up'"
+                                        @click.stop="openConfirmModal(trip, 'complete')"
+                                        class="px-4 py-2 text-sm text-white transition duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                        สิ้นสุดการเดินทาง
+                                    </button>
+
+                                    <template v-else-if="trip.status === 'completed'">
+                                        <button
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
+                                            แชทกับผู้โดยสาร
+                                        </button>
+                                    </template>
 
                                     <button v-else-if="['rejected', 'cancelled'].includes(trip.status)"
                                         @click.stop="openConfirmModal(trip, 'delete')"
@@ -422,6 +465,9 @@ let stopMarkers = []
 const tabs = [
     { status: 'pending', label: 'รอดำเนินการ' },
     { status: 'confirmed', label: 'ยืนยันแล้ว' },
+    { status: 'driver_on_the_way', label: 'กำลังไปรับผู้โดยสาร' },
+    { status: 'passenger_picked_up', label: 'รับผู้โดยสารแล้ว' },
+    { status: 'completed', label: 'สิ้นสุดการเดินทางแล้ว' },
     { status: 'rejected', label: 'ปฏิเสธ' },
     { status: 'cancelled', label: 'ยกเลิก' },
     { status: 'all', label: 'ทั้งหมด' },
@@ -454,6 +500,7 @@ function reasonLabel(v) { return reasonLabelMap[v] || v }
 // --- Computed ---
 const filteredTrips = computed(() => {
     if (activeTab.value === 'all') return allTrips.value
+    if (activeTab.value === 'myRoutes') return allTrips.value
     return allTrips.value.filter(trip => trip.status === activeTab.value)
 })
 
@@ -525,6 +572,7 @@ async function fetchMyRoutes() {
                 formatted.push({
                     id: b.id,
                     status: (b.status || '').toLowerCase(),
+                    departureTime: r.departureTime ? new Date(r.departureTime).getTime() : null,
                     origin: start?.name || `(${Number(start.lat).toFixed(2)}, ${Number(start.lng).toFixed(2)})`,
                     destination: end?.name || `(${Number(end.lat).toFixed(2)}, ${Number(end.lng).toFixed(2)})`,
                     originHasName: !!start?.name,
@@ -559,7 +607,7 @@ async function fetchMyRoutes() {
 
             // เก็บ “เส้นทางของฉัน”
             const confirmedBookings = (r.bookings || []).filter(
-                b => (b.status || '').toUpperCase() === 'CONFIRMED'
+                b => ['CONFIRMED', 'DRIVER_ON_THE_WAY', 'PASSENGER_PICKED_UP', 'COMPLETED'].includes((b.status || '').toUpperCase())
             )
             ownRoutes.push({
                 id: r.id,
@@ -782,6 +830,14 @@ const openConfirmModal = (trip, action) => {
             action: 'delete',
             variant: 'danger',
         }
+    } else if (action === 'complete') {
+        modalContent.value = {
+            title: 'สิ้นสุดการเดินทาง',
+            message: 'ยืนยันว่าคุณถึงจุดหมายและสิ้นสุดการเดินทางแล้ว? ผู้โดยสารจะสามารถให้คะแนนและรีวิวได้',
+            confirmText: 'สิ้นสุดการเดินทาง',
+            action: 'complete',
+            variant: 'primary',
+        }
     }
     isModalVisible.value = true
 }
@@ -805,6 +861,9 @@ const handleConfirmAction = async () => {
         } else if (action === 'delete') {
             await $api(`/bookings/${bookingId}`, { method: 'DELETE' })
             toast.success('ลบรายการสำเร็จ', 'ลบคำขอออกจากรายการแล้ว')
+        } else if (action === 'complete') {
+            await $api(`/bookings/${bookingId}/status`, { method: 'PATCH', body: { status: 'COMPLETED' } })
+            toast.success('สำเร็จ', 'สิ้นสุดการเดินทางแล้ว ผู้โดยสารสามารถรีวิวได้ที่เมนู รีวิว')
         }
         closeConfirmModal()
         await fetchMyRoutes()
@@ -812,6 +871,26 @@ const handleConfirmAction = async () => {
         console.error(`Failed to ${action} booking:`, error)
         toast.error('เกิดข้อผิดพลาด', error?.data?.message || 'ไม่สามารถดำเนินการได้')
         closeConfirmModal()
+    }
+}
+
+const ONE_HOUR_MS = 60 * 60 * 1000
+function canStartPickup(trip) {
+    if (!trip.departureTime) return false
+    const now = Date.now()
+    return now >= trip.departureTime - ONE_HOUR_MS
+}
+
+async function updateTripPhase(trip, status) {
+    try {
+        await $api(`/bookings/${trip.id}/status`, { method: 'PATCH', body: { status } })
+        const msg = status === 'DRIVER_ON_THE_WAY' ? 'อัปเดตเป็น "กำลังไปรับผู้โดยสาร" แล้ว' : 'อัปเดตเป็น "รับผู้โดยสารแล้ว" แล้ว'
+        toast.success('สำเร็จ', msg)
+        await fetchMyRoutes()
+    } catch (error) {
+        const msg = error?.data?.message || error?.statusMessage || error?.message || 'ไม่สามารถอัปเดตได้'
+        console.error('[Booking status update]', error?.statusCode, msg, error?.data)
+        toast.error('เกิดข้อผิดพลาด', msg)
     }
 }
 
@@ -868,7 +947,7 @@ useHead({
     title: 'คำขอจองเส้นทางของฉัน - ไปนำแหน่',
     script: process.client && !window.google?.maps ? [{
         key: 'gmaps',
-        src: `https://maps.googleapis.com/maps/api/js?key=${useRuntimeConfig().public.googleMapsApiKey}&libraries=places,geometry&callback=${GMAPS_CB}`,
+        src: `https://maps.googleapis.com/maps/api/js?key=${useRuntimeConfig().public.googleMapsApiKey}&libraries=places,geometry&loading=async&callback=${GMAPS_CB}`,
         async: true,
         defer: true
     }] : []
@@ -937,24 +1016,7 @@ watch(activeTab, () => {
 }
 
 .tab-button {
-    transition: all 0.3s ease;
-}
-
-.tab-button.active {
-    background-color: #3b82f6;
-    color: white;
-    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-}
-
-.tab-button:not(.active) {
-    background-color: white;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
-}
-
-.tab-button:not(.active):hover {
-    background-color: #f9fafb;
-    color: #374151;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #map {
@@ -980,6 +1042,21 @@ watch(activeTab, () => {
 .status-confirmed {
     background-color: #d1fae5;
     color: #065f46;
+}
+
+.status-driver-on-the-way {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+
+.status-passenger-picked-up {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+.status-completed {
+    background-color: #e0e7ff;
+    color: #3730a3;
 }
 
 .status-rejected {

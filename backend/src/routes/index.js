@@ -11,6 +11,7 @@ const accountRoutes = require('./account.routes'); // PBI #16
 const activityLogRoutes = require('./activityLog.routes'); // Activity Log (Admin)
 const emergencyRoutes = require('./emergency.routes'); // PBI #8: Emergency SOS
 const driverReportRoutes = require('./driverReport.routes'); // PBI #13: Driver Reports
+const reviewRoutes = require('./review.routes'); // PBI #15: Ride Reviews
 
 const router = express.Router();
 
@@ -36,5 +37,6 @@ router.use('/account', accountRoutes); // PBI #16: Account Deletion
 router.use('/activity-logs', activityLogRoutes); // Activity Log (Admin)
 router.use('/emergency', emergencyRoutes); // PBI #8: Emergency SOS
 router.use('/reports', driverReportRoutes); // PBI #13: Driver Reports
+router.use('/reviews', reviewRoutes); // PBI #15: Ride Reviews
 
 module.exports = router;
