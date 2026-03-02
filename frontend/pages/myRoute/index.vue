@@ -279,17 +279,6 @@
                                             </button>
                                         </div>
 
-                                        <div class="flex items-center mt-1">
-                                            <div class="flex text-sm text-yellow-400">
-                                                <span>
-                                                    {{ '★'.repeat(Math.round(trip.passenger.rating)) }}{{ '☆'.repeat(5 -
-                                                        Math.round(trip.passenger.rating)) }}
-                                                </span>
-                                            </div>
-                                            <span class="ml-2 text-sm text-gray-600">
-                                                {{ trip.passenger.rating }} ({{ trip.passenger.reviews }} รีวิว)
-                                            </span>
-                                        </div>
                                     </div>
                                     <div class="text-right">
                                         <div class="text-lg font-bold text-blue-600">{{ trip.price }} บาท</div>
@@ -587,8 +576,6 @@ async function fetchMyRoutes() {
                         image: b.passenger?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.passenger?.firstName || 'P')}&background=random&size=64`,
                         email: b.passenger?.email || '',
                         isVerified: !!b.passenger?.isVerified,
-                        rating: 4.5,
-                        reviews: Math.floor(Math.random() * 50) + 5,
                     },
                     coords,
                     polyline: r.routePolyline || null,
@@ -637,8 +624,6 @@ async function fetchMyRoutes() {
                     image: b.passenger?.profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(b.passenger?.firstName || 'P')}&background=random&size=64`,
                     email: b.passenger?.email || '',
                     isVerified: !!b.passenger?.isVerified,
-                    rating: 4.5,
-                    reviews: Math.floor(Math.random() * 50) + 5,
                 })),
                 durationText: (typeof r.duration === 'string' ? formatDuration(r.duration) : r.duration) || (r.durationSeconds ? `${Math.round(r.durationSeconds / 60)} นาที` : '-'),
                 distanceText: (typeof r.distance === 'string' ? formatDistance(r.distance) : r.distance) || (r.distanceMeters ? `${(r.distanceMeters / 1000).toFixed(1)} กม.` : '-'),
