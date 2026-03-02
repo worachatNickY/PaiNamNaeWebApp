@@ -294,7 +294,9 @@ const getMyBookings = async (passengerId) => {
               lastName: true,
               gender: true,
               profilePicture: true,
-              isVerified: true
+              isVerified: true,
+              averageRating: true,
+              reviewCount: true
             }
           },
           vehicle: {

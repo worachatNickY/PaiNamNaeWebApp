@@ -336,8 +336,8 @@ async function fetchMyTrips() {
                 image:
                     b.route.driver.profilePicture ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(b.route.driver.firstName || 'U')}&background=random&size=64`,
-                rating: 4.5,
-                reviews: Math.floor(Math.random() * 50) + 5
+                rating: b.route.driver.averageRating ?? 4.5,
+                reviews: b.route.driver.reviewCount ?? 0
             }
 
             const carDetails = []
