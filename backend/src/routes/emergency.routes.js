@@ -51,6 +51,13 @@ router.post(
     emergencyController.createEmergency
 );
 
+// Attach media files to an emergency
+router.post(
+    '/:id/attachments',
+    protect,
+    emergencyController.addAttachments
+);
+
 // Get driver's emergency history
 router.get(
     '/my-emergencies',

@@ -11,28 +11,56 @@
             </div>
 
             <template v-else>
-                <!-- ทริปที่รอรีวิว (ภายใน 7 วัน) -->
+                <!-- ทริปที่รอรีวิว -->
                 <section class="mt-8">
                     <h2 class="text-lg font-semibold text-gray-900">ทริปที่รอรีวิว</h2>
-                    <p class="mt-1 text-sm text-gray-600">เดินทางสำเร็จแล้ว และยังไม่เกิน 7 วัน — กดเขียนรีวิวได้</p>
+                    <p class="mt-1 text-sm text-gray-600">
+                        ทริปที่เดินทางสำเร็จแล้วแต่ยังไม่ได้รีวิว
+                        <span class="block text-xs text-gray-500">
+                            สามารถเขียนรีวิวได้ภายใน 7 วันหลังเดินทางสำเร็จ หากเกินกำหนดจะไม่สามารถเขียนรีวิวได้
+                        </span>
+                    </p>
                     <div v-if="loadingReviewable" class="p-6 mt-4 bg-white rounded-xl shadow">กำลังโหลด...</div>
                     <div v-else-if="!reviewableTrips.length" class="p-6 mt-4 bg-white rounded-xl shadow text-gray-500">
                         ไม่มีทริปที่รอรีวิวในขณะนี้
                     </div>
                     <ul v-else class="mt-4 space-y-4">
-                        <li v-for="trip in reviewableTrips" :key="trip.id"
-                            class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl shadow">
+                        <li
+                            v-for="trip in reviewableTrips"
+                            :key="trip.id"
+                            class="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-xl shadow"
+                        >
                             <div>
-                                <p class="font-medium text-gray-900">{{ tripOrigin(trip) }} → {{ tripDest(trip) }}</p>
+                                <p class="font-medium text-gray-900">
+                                    {{ tripOrigin(trip) }} → {{ tripDest(trip) }}
+                                </p>
                                 <p class="text-sm text-gray-600">
                                     คนขับ: {{ trip.route.driver.firstName }} {{ trip.route.driver.lastName }}
                                     · {{ formatDate(trip.route.departureTime) }}
                                 </p>
+                                <p
+                                    class="mt-1 text-xs"
+                                    :class="trip.canReview ? 'text-green-700' : 'text-gray-500'"
+                                >
+                                    {{
+                                        trip.canReview
+                                            ? 'อยู่ในช่วงเวลาที่สามารถเขียนรีวิวได้ (ภายใน 7 วันหลังเดินทางสำเร็จ)'
+                                            : 'เลยกำหนด 7 วันสำหรับการเขียนรีวิวแล้ว ไม่สามารถเขียนรีวิวทริปนี้ได้'
+                                    }}
+                                </p>
                             </div>
-                            <button type="button"
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
-                                @click="openReviewForm(trip)">
-                                เขียนรีวิว
+                            <button
+                                type="button"
+                                :disabled="trip.canReview === false"
+                                :class="[
+                                    'px-4 py-2 text-sm font-medium rounded-lg',
+                                    trip.canReview !== false
+                                        ? 'text-white bg-blue-600 hover:bg-blue-700'
+                                        : 'text-gray-400 bg-gray-100 cursor-not-allowed'
+                                ]"
+                                @click="openReviewForm(trip)"
+                            >
+                                {{ trip.canReview !== false ? 'เขียนรีวิว' : 'หมดเขตรีวิว' }}
                             </button>
                         </li>
                     </ul>
@@ -54,7 +82,12 @@
                                 <span class="text-sm text-gray-500">{{ formatDate(r.createdAt) }}</span>
                             </div>
                             <p v-if="r.comment" class="mt-2 text-gray-700">{{ r.comment }}</p>
-                            <p class="mt-1 text-sm text-gray-500">รีวิวคนขับ: {{ r.driver.firstName }} {{ r.driver.lastName }}</p>
+                            <p v-if="r.tags && formatTags(r.tags)" class="mt-1 text-sm text-gray-500">
+                                {{ formatTags(r.tags) }}
+                            </p>
+                            <p class="mt-1 text-sm text-gray-500">
+                                รีวิวคนขับ: {{ r.driver.firstName }} {{ r.driver.lastName }}
+                            </p>
                         </li>
                     </ul>
                 </section>
@@ -77,6 +110,9 @@
                             <span class="text-sm text-gray-500">{{ formatDate(r.createdAt) }}</span>
                         </div>
                         <p v-if="r.comment" class="mt-2 text-gray-700">{{ r.comment }}</p>
+                        <p v-if="r.tags && formatTags(r.tags)" class="mt-1 text-sm text-gray-500">
+                            {{ formatTags(r.tags) }}
+                        </p>
                         <p class="mt-1 text-sm text-gray-500">
                             คนขับ: {{ r.driver.firstName }} {{ r.driver.lastName }}
                             <span v-if="r.isAnonymous">· ผู้รีวิว: ไม่แสดงชื่อ</span>
@@ -177,6 +213,11 @@ const tagOptions = [
     { value: 'comfortable', label: 'นั่งสบาย' },
 ]
 
+const tagLabels = tagOptions.reduce((acc, t) => {
+    acc[t.value] = t.label
+    return acc
+}, /** @type {Record<string, string>} */ ({}))
+
 function tripOrigin(trip) {
     const s = trip.route?.startLocation
     return s?.name || (s?.address || '-')
@@ -188,11 +229,20 @@ function tripDest(trip) {
 function formatDate(d) {
     return d ? dayjs(d).format('D MMM BBBB') : '-'
 }
+function formatTags(tags) {
+    if (!tags) return ''
+    const arr = Array.isArray(tags) ? tags : Object.values(tags)
+    return arr.map(t => tagLabels[t] || t).join(', ')
+}
 function toggleTag(v) {
     if (tags.value.includes(v)) tags.value = tags.value.filter(t => t !== v)
     else tags.value = [...tags.value, v]
 }
 function openReviewForm(trip) {
+    if (trip.canReview === false) {
+        toast.error('ไม่สามารถเขียนรีวิวได้', 'ทริปนี้เลยกำหนด 7 วันสำหรับการเขียนรีวิวแล้ว')
+        return
+    }
     selectedTrip.value = trip
     rating.value = 0
     tags.value = []

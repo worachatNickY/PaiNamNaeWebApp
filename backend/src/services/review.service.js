@@ -128,21 +128,15 @@ async function getMyReviews(passengerId, opts) {
 }
 
 /**
- * Get bookings that the passenger can still review (COMPLETED, no review yet, within 7 days)
- * หมายเหตุ: ไม่บังคับ departureTime <= now เพื่อให้ทริปที่คนขับจบก่อนเวลาออกตามตารางยังรีวิวได้
+ * Get bookings to show in "ทริปที่รอรีวิว"
+ * - แสดงทุกทริปที่เดินทางสำเร็จแล้ว และ "ยังไม่ได้รีวิว"
+ * - เพิ่ม flag canReview เพื่อบอกว่ายังอยู่ในช่วง 7 วันหรือไม่
  */
 async function getReviewableBookings(passengerId) {
-    const now = new Date();
-    const cutoff = new Date(Date.now() - REVIEW_WINDOW_MS);
     const bookings = await prisma.booking.findMany({
         where: {
             passengerId,
             status: 'COMPLETED',
-            route: {
-                departureTime: {
-                    gte: cutoff,
-                },
-            },
         },
         include: {
             route: {
@@ -152,26 +146,43 @@ async function getReviewableBookings(passengerId) {
                     departureTime: true,
                     startLocation: true,
                     endLocation: true,
-                    driver: { select: { id: true, firstName: true, lastName: true, averageRating: true, reviewCount: true } },
+                    driver: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            averageRating: true,
+                            reviewCount: true,
+                        },
+                    },
                 },
             },
         },
         orderBy: { createdAt: 'desc' },
     });
 
+    if (!bookings.length) return [];
+
     const reviewIds = await prisma.review.findMany({
-        where: { bookingId: { in: bookings.map(b => b.id) } },
+        where: { bookingId: { in: bookings.map((b) => b.id) } },
         select: { bookingId: true },
     });
-    const reviewedSet = new Set(reviewIds.map(r => r.bookingId));
+    const reviewedSet = new Set(reviewIds.map((r) => r.bookingId));
 
-    const eligible = bookings.filter(b => {
-        const dep = new Date(b.route.departureTime).getTime();
-        const withinWindow = Date.now() - dep <= REVIEW_WINDOW_MS;
-        return withinWindow && !reviewedSet.has(b.id);
-    });
+    const now = Date.now();
 
-    return eligible;
+    return bookings
+        // แสดงเฉพาะทริปที่ยัง "ไม่ได้รีวิว"
+        .filter((b) => !reviewedSet.has(b.id))
+        // map เพิ่ม canReview = ภายใน 7 วันหรือไม่
+        .map((b) => {
+            const dep = new Date(b.route.departureTime).getTime();
+            const withinWindow = now - dep <= REVIEW_WINDOW_MS;
+            return {
+                ...b,
+                canReview: withinWindow,
+            };
+        });
 }
 
 async function getReviewsForDriver(driverId, opts) {
