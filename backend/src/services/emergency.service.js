@@ -16,17 +16,8 @@ const createEmergencyRequest = async (driverId, data, connectionInfo = {}) => {
         throw new ApiError(403, 'Only verified drivers can create emergency requests');
     }
 
-    // ตรวจสอบว่ามี active emergency request อยู่หรือไม่
-    const existingActive = await prisma.emergencyRequest.findFirst({
-        where: {
-            driverId,
-            status: { in: ['ACTIVE', 'RESPONDING'] }
-        }
-    });
-
-    if (existingActive) {
-        throw new ApiError(400, 'You already have an active emergency request');
-    }
+    // เดิมเคยบล็อกไม่ให้มีหลายคำขอฉุกเฉินที่ยัง Active พร้อมกัน
+    // แต่เพื่อให้ทดสอบและบันทึกเหตุซ้ำได้ จึงไม่บังคับข้อจำกัดนี้แล้ว
 
     // สร้าง emergency request
     const emergencyRequest = await prisma.emergencyRequest.create({
@@ -69,9 +60,9 @@ const createEmergencyRequest = async (driverId, data, connectionInfo = {}) => {
         connectionInfo
     });
 
-    // Notify admins
+    // Notify admins (ใช้ SYSTEM เป็น type ของ notification)
     await notifyAdmins(
-        'EMERGENCY',
+        'SYSTEM',
         'SOS: Driver Emergency',
         `Driver ${driver.firstName || driver.username} has requested emergency assistance (${getEmergencyTypeLabel(data.type)})`,
         `/admin/emergencies/${emergencyRequest.id}`,
@@ -272,7 +263,7 @@ const respondToEmergency = async (id, adminId, adminNotes) => {
     // Notify driver
     await createNotification(
         emergency.driverId,
-        'EMERGENCY',
+        'SYSTEM',
         'Help is on the way',
         'Admin has acknowledged your emergency request and help is being dispatched.',
         `/emergency/${id}`,
@@ -299,13 +290,18 @@ const resolveEmergency = async (id, adminId, adminNotes) => {
         throw new ApiError(400, 'Cannot resolve this emergency');
     }
 
+    const trimmedNotes = (adminNotes || '').trim();
+    if (!trimmedNotes) {
+        throw new ApiError(400, 'Admin notes are required to resolve emergency');
+    }
+
     const updated = await prisma.emergencyRequest.update({
         where: { id },
         data: {
             status: 'RESOLVED',
             resolvedAt: new Date(),
             resolvedById: adminId,
-            adminNotes: adminNotes || emergency.adminNotes
+            adminNotes: trimmedNotes
         },
         include: { driver: true }
     });
@@ -313,7 +309,7 @@ const resolveEmergency = async (id, adminId, adminNotes) => {
     // Notify driver
     await createNotification(
         emergency.driverId,
-        'EMERGENCY',
+        'SYSTEM',
         'Emergency Resolved',
         'Your emergency request has been resolved. We hope you are safe.',
         `/emergency/${id}`,
@@ -369,6 +365,33 @@ const getEmergencyStats = async () => {
         }, {}),
         recentEmergencies
     };
+};
+
+/**
+ * เพิ่มไฟล์แนบให้ emergency request
+ * ใช้ได้ทั้งฝั่ง driver (เจ้าของเคส) และ admin
+ */
+const addAttachments = async (id, userId, attachments, isAdmin = false) => {
+    const emergency = await prisma.emergencyRequest.findUnique({
+        where: { id },
+    });
+
+    if (!emergency) {
+        throw new ApiError(404, 'Emergency request not found');
+    }
+
+    // คนที่อัปโหลดต้องเป็น driver เจ้าของ หรือ admin
+    if (!isAdmin && emergency.driverId !== userId) {
+        throw new ApiError(403, 'Not authorized to attach files to this emergency request');
+    }
+
+    const existing = Array.isArray(emergency.attachments) ? emergency.attachments : [];
+    const merged = [...existing, ...(attachments || [])];
+
+    return prisma.emergencyRequest.update({
+        where: { id },
+        data: { attachments: merged },
+    });
 };
 
 // ==================== Emergency Contacts ====================
@@ -482,6 +505,7 @@ module.exports = {
     respondToEmergency,
     resolveEmergency,
     getEmergencyStats,
+    addAttachments,
     saveEmergencyContact,
     getEmergencyContacts,
     deleteEmergencyContact

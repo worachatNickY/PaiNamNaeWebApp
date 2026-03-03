@@ -391,6 +391,7 @@ model EmergencyRequest {
   // Emergency details
   type          EmergencyType
   description   String?
+  attachments   Json?           // [{ url: String, type: String }]
   
   // Location
   latitude      Float

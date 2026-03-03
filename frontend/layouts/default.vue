@@ -39,8 +39,8 @@
                             </NuxtLink>
                         </div>
 
-                        <!-- คนขับ: แสดงคำว่า การเดินทางทั้งหมด + ดรอปดาวน์ (การเดินทางของฉัน / คำขอจองเส้นทางของฉัน) -->
-                        <div v-if="user && (user.role === 'DRIVER' || user.role === 'ADMIN')">
+                        <!-- คนขับ/แอดมิน: การเดินทางทั้งหมด (ดรอปดาวน์) + เมนูรีวิว แยกด้านข้าง -->
+                        <div v-if="user && (user.role === 'DRIVER' || user.role === 'ADMIN')" class="flex items-center gap-4">
                             <div class="relative dropdown-trigger group">
                                 <NuxtLink to="/myTrip"
                                     class="flex items-center gap-1.5 rounded-lg px-3 py-2 text-gray-600 transition-all duration-200 hover:bg-blue-50 hover:text-blue-700"
@@ -65,13 +65,13 @@
                                         :class="{ 'bg-blue-50/70 text-blue-700': $route.path === '/myRoute' }">
                                         คำขอจองเส้นทางของฉัน
                                     </NuxtLink>
-                                    <NuxtLink to="/reviews"
-                                        class="block px-4 py-2.5 text-left font-medium text-gray-700 transition-colors duration-150 hover:bg-blue-50 hover:text-blue-700"
-                                        :class="{ 'bg-blue-50/70 text-blue-700': $route.path.startsWith('/reviews') }">
-                                        รีวิว
-                                    </NuxtLink>
                                 </div>
                             </div>
+                            <NuxtLink to="/reviews"
+                                class="text-gray-600 transition-colors duration-200 hover:text-blue-600"
+                                :class="{ 'text-blue-600': $route.path.startsWith('/reviews') }">
+                                รีวิว
+                            </NuxtLink>
                         </div>
 
                         <div v-if="!token" class="flex items-center space-x-3 ">

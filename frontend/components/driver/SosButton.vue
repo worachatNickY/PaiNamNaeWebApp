@@ -1,17 +1,19 @@
 <template>
-    <!-- Floating SOS Button -->
+    <!-- Floating Incident Report Button -->
     <div v-if="isDriver" class="fixed z-50 bottom-6 right-6">
         <button @click="showModal = true"
             class="flex items-center justify-center w-16 h-16 text-white transition-all bg-red-600 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 animate-pulse-slow">
-            <span class="text-xl font-bold">SOS</span>
+            <span class="text-[11px] font-bold leading-tight text-center">
+                REPORT
+            </span>
         </button>
     </div>
 
-    <!-- SOS Modal: responsive - scrollable body, fixed footer on small screens -->
+    <!-- SOS Modal: จำกัดความสูง + เลื่อนเนื้อได้ภายใน modal -->
     <Teleport to="body">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4">
-            <div class="flex flex-col w-full max-w-md max-h-[90vh] sm:max-h-[85vh] mx-0 sm:mx-4 overflow-hidden bg-white shadow-2xl rounded-t-2xl sm:rounded-2xl">
-                <!-- Header -->
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 overflow-y-auto">
+            <div class="w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden bg-white shadow-2xl rounded-2xl">
+                <!-- Header (ไม่ย่อ) -->
                 <div class="flex-shrink-0 p-4 sm:p-6 text-center text-white bg-gradient-to-r from-red-600 to-red-700">
                     <div
                         class="flex items-center justify-center w-14 h-14 sm:w-20 sm:h-20 mx-auto mb-2 sm:mb-4 border-4 border-white rounded-full">
@@ -21,15 +23,19 @@
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h2 class="text-xl sm:text-2xl font-bold">Emergency SOS</h2>
-                    <p class="mt-1 sm:mt-2 text-sm sm:text-base text-red-100">ขอความช่วยเหลือฉุกเฉิน</p>
+                    <h2 class="text-xl sm:text-2xl font-bold">รายงานเหตุ / ปัญหาระหว่างการเดินทาง</h2>
+                    <p class="mt-1 sm:mt-2 text-sm sm:text-base text-red-100">
+                        ใช้รายงานเหตุไม่ปลอดภัย อุบัติเหตุ หรือปัญหาระหว่างการเดินทางให้ทีมงานทราบ
+                    </p>
                 </div>
 
-                <!-- Body: scrollable on small screens -->
+                <!-- Body (เลื่อนได้เมื่อเนื้อหายาว) -->
                 <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
                     <!-- Emergency Type Selection -->
-                    <div class="mb-4 sm:mb-6">
-                        <label class="block mb-2 sm:mb-3 text-sm font-semibold text-gray-700">ประเภทเหตุฉุกเฉิน</label>
+                    <div class="mb-4 sm:mb-4">
+                        <label class="block mb-2 sm:mb-3 text-sm font-semibold text-gray-700">
+                            ประเภทเหตุ / ปัญหาหลัก
+                        </label>
                         <div class="grid grid-cols-2 gap-2 sm:gap-3">
                             <button v-for="type in emergencyTypes" :key="type.value" @click="selectedType = type.value"
                                 :class="[
@@ -66,12 +72,46 @@
                         </div>
                     </div>
 
+                    <!-- Incident reason -->
+                    <div class="mb-4 sm:mb-6">
+                        <label class="block mb-2 text-sm font-semibold text-gray-700">
+                            คุณต้องการแจ้งเหตุ / ปัญหาเกี่ยวกับอะไร
+                        </label>
+                        <select v-model="incidentReason"
+                            class="w-full px-4 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                            <option value="">เลือกประเภทเหตุ/ปัญหา</option>
+                            <option v-for="opt in incidentReasons" :key="opt.value" :value="opt.value">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                    </div>
+
                     <!-- Description -->
                     <div class="mb-4 sm:mb-6">
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
+                        <label class="block mb-2 text-sm font-semibold text-gray-700">
+                            รายละเอียดเหตุการณ์ (ถ้ามี)
+                        </label>
                         <textarea v-model="description" rows="2"
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                            placeholder="อธิบายสถานการณ์..."></textarea>
+                            placeholder="อธิบายสิ่งที่เกิดขึ้น เช่น มีผู้บาดเจ็บ จุดที่เกิดเหตุ สภาพรถ ฯลฯ"></textarea>
+                    </div>
+
+                    <!-- Attachments -->
+                    <div class="mb-4 sm:mb-6">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">
+                            แนบรูปภาพหรือวิดีโอเพิ่มเติม (ไม่บังคับ)
+                        </label>
+                        <input type="file" multiple accept="image/*,video/*"
+                            class="block w-full text-sm text-gray-700 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border file:border-gray-300 file:text-sm file:bg-white file:text-gray-700 hover:file:bg-gray-50"
+                            @change="onFilesChange" />
+                        <p class="mt-1 text-xs text-gray-500">
+                            รองรับไฟล์ภาพและวิดีโอ ขนาดไม่เกินประมาณ 20 MB ต่อไฟล์ (สูงสุด 5 ไฟล์)
+                        </p>
+                        <ul v-if="files.length" class="mt-2 text-xs text-gray-600 list-disc list-inside space-y-0.5">
+                            <li v-for="file in files" :key="file.name + file.lastModified">
+                                {{ file.name }}
+                            </li>
+                        </ul>
                     </div>
 
                     <!-- Location Status -->
@@ -115,14 +155,14 @@
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p class="text-sm text-yellow-800">
-                                การกด SOS จะแจ้งเตือนไปยังทีมงานทันที กรุณาใช้เฉพาะกรณีฉุกเฉินจริงเท่านั้น
+                                การกดส่งรายงานจะส่งข้อมูลไปยังทีมงานทันที กรุณาใช้เฉพาะกรณีที่ต้องการให้ทีมงานติดตามจริงเท่านั้น
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Actions: always visible at bottom (flex-shrink-0) -->
-                <div class="flex-shrink-0 flex gap-2 sm:gap-3 px-4 sm:px-6 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:pb-6 bg-white border-t border-gray-100">
+                <!-- Actions (ปุ่มอยู่ล่างเสมอ) -->
+                <div class="flex-shrink-0 flex gap-3 px-4 sm:px-6 py-4 bg-white border-t border-gray-100">
                     <button @click="closeModal"
                         class="flex-1 px-4 sm:px-6 py-3 text-sm font-semibold text-gray-700 transition-colors bg-gray-100 rounded-xl hover:bg-gray-200">
                         ยกเลิก
@@ -130,7 +170,7 @@
                     <button @click="submitSOS" :disabled="!canSubmit || submitting"
                         class="flex-1 px-4 sm:px-6 py-3 text-sm font-semibold text-white transition-colors bg-red-600 rounded-xl hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">
                         <span v-if="submitting">กำลังส่ง...</span>
-                        <span v-else>ส่ง SOS</span>
+                        <span v-else>ส่งรายงาน</span>
                     </button>
                 </div>
             </div>
@@ -171,7 +211,9 @@ const { toast } = useToast()
 const showModal = ref(false)
 const showSuccessModal = ref(false)
 const selectedType = ref(null)
+const incidentReason = ref('')
 const description = ref('')
+const files = ref(/** @type {File[]} */([]))
 const location = ref(null)
 const locationAddress = ref('')
 const locationLoading = ref(false)
@@ -180,11 +222,22 @@ const submitting = ref(false)
 const isDriver = computed(() => user.value?.role === 'DRIVER')
 
 const emergencyTypes = [
-    { value: 'ACCIDENT', label: 'อุบัติเหตุ' },
-    { value: 'MEDICAL', label: 'เจ็บป่วย' },
-    { value: 'THREAT', label: 'ถูกคุกคาม' },
-    { value: 'VEHICLE_BREAKDOWN', label: 'รถเสีย' },
-    { value: 'OTHER', label: 'อื่นๆ' }
+    { value: 'ACCIDENT', label: 'เหตุอุบัติเหตุ / เฉี่ยวชน' },
+    { value: 'MEDICAL', label: 'เหตุเจ็บป่วย / ต้องการแพทย์' },
+    { value: 'THREAT', label: 'ไม่ปลอดภัย / ถูกคุกคาม' },
+    { value: 'VEHICLE_BREAKDOWN', label: 'รถเสีย / ใช้งานต่อไม่ได้' },
+    { value: 'OTHER', label: 'เหตุอื่น ๆ ที่ต้องการแจ้ง' }
+]
+
+const incidentReasons = [
+    { value: 'NO_SHOW', label: 'ผู้โดยสารไม่มาตามนัด (No-show)' },
+    { value: 'WRONG_MEETUP', label: 'จุดนัดพบผิด / หากันไม่เจอ' },
+    { value: 'VEHICLE_ISSUE', label: 'รถเสีย / เกิดเหตุทำให้ไปต่อไม่ได้' },
+    { value: 'ACCIDENT', label: 'อุบัติเหตุ / เฉี่ยวชน' },
+    { value: 'PASSENGER_BEHAVIOR', label: 'ผู้โดยสารก้าวร้าว / เสี่ยงต่อความปลอดภัย' },
+    { value: 'VEHICLE_DIRTY_DAMAGE', label: 'ทำรถสกปรก / เสียหาย' },
+    { value: 'LOST_ITEM', label: 'ลืมของไว้ในรถ' },
+    { value: 'PAYMENT_ISSUE', label: 'ปัญหาการชำระเงิน / ยอดไม่ถูกต้อง' }
 ]
 
 const locationStatus = computed(() => {
@@ -209,7 +262,7 @@ const locationStatus = computed(() => {
     }
 })
 
-const canSubmit = computed(() => selectedType.value && location.value)
+const canSubmit = computed(() => selectedType.value && incidentReason.value && location.value)
 
 const getLocation = () => {
     locationLoading.value = true
@@ -249,7 +302,49 @@ const getLocation = () => {
 const closeModal = () => {
     showModal.value = false
     selectedType.value = null
+    incidentReason.value = ''
     description.value = ''
+    files.value = []
+}
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024 // 20 MB
+const MAX_FILES = 5
+
+const onFilesChange = (event) => {
+    const list = event.target.files
+    if (!list || !list.length) return
+
+    const incoming = Array.from(list)
+    const validNew = []
+    const rejected = []
+
+    incoming.forEach(file => {
+        if (file.size > MAX_FILE_SIZE) {
+            rejected.push(file.name)
+        } else {
+            validNew.push(file)
+        }
+    })
+
+    let combined = [...files.value, ...validNew]
+
+    if (combined.length > MAX_FILES) {
+        toast.error('ไฟล์แนบเยอะเกินไป', `เลือกได้สูงสุด ${MAX_FILES} ไฟล์ต่อการแจ้งเหตุ`)
+    }
+
+    // จำกัดไม่เกิน MAX_FILES ไฟล์
+    combined = combined.slice(0, MAX_FILES)
+    files.value = combined
+
+    if (rejected.length) {
+        toast.error(
+            'ไฟล์ขนาดเกินกำหนด',
+            `ไฟล์ต่อไปนี้มีขนาดเกิน 20 MB และจะไม่ถูกแนบ: ${rejected.join(', ')}`
+        )
+    }
+
+    // รีเซ็ต input เพื่อให้เลือกไฟล์ชุดเดิมซ้ำได้ถ้าต้องการ
+    event.target.value = ''
 }
 
 const submitSOS = async () => {
@@ -257,16 +352,34 @@ const submitSOS = async () => {
 
     submitting.value = true
     try {
-        await $api('/emergency', {
+        const reasonLabel = incidentReasons.find(r => r.value === incidentReason.value)?.label
+        const parts = []
+        if (reasonLabel) parts.push(`[${reasonLabel}]`)
+        if (description.value) parts.push(description.value)
+        const fullDescription = parts.join(' ')
+
+        const emergency = await $api('/emergency', {
             method: 'POST',
             body: {
                 type: selectedType.value,
-                description: description.value || null,
+                description: fullDescription || null,
                 latitude: location.value.latitude,
                 longitude: location.value.longitude,
                 address: locationAddress.value || null
             }
         })
+
+        // อัปโหลดไฟล์แนบ (ถ้ามี)
+        if (emergency?.id && files.value.length) {
+            const formData = new FormData()
+            files.value.forEach(file => {
+                formData.append('files', file)
+            })
+            await $api(`/emergency/${emergency.id}/attachments`, {
+                method: 'POST',
+                body: formData
+            })
+        }
 
         closeModal()
         showSuccessModal.value = true
@@ -291,6 +404,7 @@ watch(showModal, (val) => {
     }
 })
 </script>
+
 
 <style scoped>
 @keyframes pulse-slow {

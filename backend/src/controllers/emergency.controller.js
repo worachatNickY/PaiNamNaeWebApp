@@ -1,6 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const emergencyService = require('../services/emergency.service');
 const { getConnectionInfo } = require('../services/activityLog.service');
+const upload = require('../middlewares/upload.middleware');
+const { uploadToCloudinary } = require('../utils/cloudinary');
 
 // ==================== Driver Endpoints ====================
 
@@ -160,6 +162,46 @@ const getEmergencyStats = asyncHandler(async (req, res) => {
     });
 });
 
+/**
+ * @desc    Attach media files (images/videos) to an emergency request
+ * @route   POST /api/emergency/:id/attachments
+ * @access  Private (Driver owner or Admin)
+ */
+const addAttachments = [
+    upload.array('files', 5),
+    asyncHandler(async (req, res) => {
+        if (!req.files || !req.files.length) {
+            return res.status(400).json({
+                success: false,
+                message: 'No files uploaded',
+            });
+        }
+
+        const uploads = await Promise.all(
+            req.files.map(file => uploadToCloudinary(file.buffer, 'painamnae/emergencies'))
+        );
+
+        const attachments = uploads.map((u, idx) => ({
+            url: u.url,
+            type: req.files[idx].mimetype,
+        }));
+
+        const isAdmin = req.user.role === 'ADMIN';
+        const updated = await emergencyService.addAttachments(
+            req.params.id,
+            req.user.sub,
+            attachments,
+            isAdmin
+        );
+
+        res.status(201).json({
+            success: true,
+            message: 'Attachments added',
+            data: updated,
+        });
+    }),
+];
+
 // ==================== Emergency Contacts ====================
 
 /**
@@ -216,5 +258,6 @@ module.exports = {
     getEmergencyStats,
     getContacts,
     saveContact,
-    deleteContact
+    deleteContact,
+    addAttachments
 };
