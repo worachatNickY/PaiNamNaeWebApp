@@ -2,9 +2,9 @@
     <div class="px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900">Emergency SOS Cases</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Driver Incident Cases</h2>
             <p class="mt-2 text-gray-600">
-                ศูนย์กลางจัดการคำขอเหตุฉุกเฉิน (SOS) จากคนขับ และติดตามสถานะการช่วยเหลือ
+                ศูนย์กลางจัดการรายงานเหตุ / ปัญหาระหว่างการเดินทางจากผู้ขับขี่ และติดตามความคืบหน้าของแต่ละเคส
             </p>
         </div>
 
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <!-- Alert for active emergencies -->
+        <!-- Alert for incidents that still need attention -->
         <div v-if="stats.recentEmergencies?.length" class="p-4 mb-8 bg-red-600 rounded-xl">
             <div class="flex items-center gap-3 mb-3 text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
@@ -40,7 +40,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <span class="font-semibold">Active SOS – ต้องการการตอบสนองด่วน</span>
+                <span class="font-semibold">เคสที่ยังเปิดอยู่ – ควรติดตามและประสานงานด่วน</span>
             </div>
             <div class="space-y-2">
                 <div v-for="item in stats.recentEmergencies" :key="item.id"
@@ -66,10 +66,10 @@
         <div class="p-6 mb-8 bg-white border border-gray-300 rounded-lg shadow-md">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
                 <div>
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Status</label>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">สถานะเคส</label>
                     <select v-model="filters.status"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Status</option>
+                        <option value="">ทุกสถานะ</option>
                         <option value="ACTIVE">Active</option>
                         <option value="RESPONDING">Responding</option>
                         <option value="RESOLVED">Resolved</option>
@@ -77,25 +77,25 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Type</label>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">ประเภทเหตุ / ปัญหา</label>
                     <select v-model="filters.type"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        <option value="">All Types</option>
+                        <option value="">ทุกประเภท</option>
                         <option v-for="(label, key) in typeLabels" :key="key" :value="key">
                             {{ label }}
                         </option>
                     </select>
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block mb-1 text-sm font-medium text-gray-700">Search</label>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">ค้นหาเคส</label>
                     <input v-model="filters.search" type="text"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        placeholder="ชื่อคนขับ, username, เบอร์โทร, ที่อยู่..." />
+                        placeholder="ชื่อคนขับ, username, เบอร์โทร, ที่อยู่ หรือคำอธิบายเหตุ..." />
                 </div>
                 <div class="flex items-end">
                     <button @click="fetchEmergencies"
                         class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                        Search
+                        ค้นหา
                     </button>
                 </div>
             </div>
@@ -104,7 +104,7 @@
         <!-- List -->
         <div class="bg-white border border-gray-300 rounded-lg shadow-md">
             <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Emergency SOS Cases</h3>
+                <h3 class="text-lg font-semibold text-gray-900">รายการรายงานเหตุจากผู้ขับขี่</h3>
             </div>
 
             <div v-if="loading" class="p-12 text-center text-gray-500">Loading...</div>
@@ -115,7 +115,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 11-9 9 9 9 0 019-9z" />
                 </svg>
-                <p class="text-gray-500">No emergency cases found</p>
+                <p class="text-gray-500">ยังไม่มีรายงานเหตุจากผู้ขับขี่</p>
             </div>
 
             <div v-else class="divide-y divide-gray-200">
@@ -235,7 +235,7 @@
                     <div class="p-6 space-y-6">
                         <!-- Driver info -->
                         <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
-                            <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">Driver</h4>
+                                <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">ข้อมูลคนขับ</h4>
                             <div class="flex items-center gap-3">
                                 <div
                                     class="flex items-center justify-center w-10 h-10 text-blue-600 bg-blue-100 rounded-full">
@@ -260,7 +260,7 @@
                         <!-- Location & time -->
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
-                                <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">Location</h4>
+                                <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">ตำแหน่ง / สถานที่เกิดเหตุ</h4>
                                 <p class="text-sm text-gray-700">
                                     {{ selected.address || 'ไม่มีข้อมูลที่อยู่' }}
                                 </p>
@@ -281,14 +281,14 @@
                                 </a>
                             </div>
                             <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
-                                <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">Timeline</h4>
+                                <h4 class="mb-2 text-sm font-semibold text-gray-700 uppercase">ลำดับเหตุการณ์</h4>
                                 <ul class="space-y-1 text-xs text-gray-600">
-                                    <li>สร้างเคส: {{ formatDateTime(selected.createdAt) }}</li>
+                                    <li>สร้างเคสรายงานเหตุ: {{ formatDateTime(selected.createdAt) }}</li>
                                     <li v-if="selected.respondedAt">
-                                        รับเรื่องแล้ว: {{ formatDateTime(selected.respondedAt) }}
+                                        ทีมงานรับเรื่องแล้ว: {{ formatDateTime(selected.respondedAt) }}
                                     </li>
                                     <li v-if="selected.resolvedAt">
-                                        ปิดเหตุฉุกเฉิน: {{ formatDateTime(selected.resolvedAt) }}
+                                        ปิดเคสแล้ว: {{ formatDateTime(selected.resolvedAt) }}
                                     </li>
                                     <li v-if="selected.cancelledAt">
                                         คนขับยกเลิก: {{ formatDateTime(selected.cancelledAt) }}
