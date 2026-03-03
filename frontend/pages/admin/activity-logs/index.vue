@@ -247,7 +247,7 @@ const fetchLogs = async () => {
         if (filters.value.startDate) params.append('startDate', filters.value.startDate)
         if (filters.value.endDate) params.append('endDate', filters.value.endDate)
 
-        const response = await $fetch(`${config.public.apiBase}activity-logs/admin?${params}`, {
+        const response = await $fetch(`${config.public.apiBase}/activity-logs/admin?${params}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
 
@@ -263,7 +263,7 @@ const fetchLogs = async () => {
 const fetchStats = async () => {
     try {
         const token = useCookie('token').value
-        const response = await $fetch(`${config.public.apiBase}activity-logs/admin/stats`, {
+        const response = await $fetch(`${config.public.apiBase}/activity-logs/admin/stats`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         stats.value = response.data
@@ -275,7 +275,7 @@ const fetchStats = async () => {
 const fetchActivityTypes = async () => {
     try {
         const token = useCookie('token').value
-        const response = await $fetch(`${config.public.apiBase}activity-logs/admin/activity-types`, {
+        const response = await $fetch(`${config.public.apiBase}/activity-logs/admin/activity-types`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         activityTypes.value = response.data

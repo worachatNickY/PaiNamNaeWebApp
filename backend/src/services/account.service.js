@@ -46,20 +46,22 @@ const notifyAdmins = async (type, title, body, link = null, metadata = null) => 
  */
 const logActivity = async (userId, userEmail, activityType, description, metadata, connectionInfo = {}) => {
     try {
-        await prisma.activityLog.create({
+        console.log('📝 Logging activity:', { userId, userEmail, activityType });
+        const log = await prisma.activityLog.create({
             data: {
                 userId,
                 userEmail,
                 activityType,
                 description,
-                metadata,
+                metadata: metadata || undefined,
                 ipAddress: connectionInfo.ipAddress || null,
                 userAgent: connectionInfo.userAgent || null,
                 deviceInfo: connectionInfo.deviceInfo || null
             }
         });
+        console.log('✅ Activity logged:', log.id);
     } catch (error) {
-        console.error('Failed to log activity:', error.message);
+        console.error('❌ Failed to log activity:', error);
     }
 };
 
@@ -168,9 +170,8 @@ const requestDelete = async (userId, reason, otherReason = null, connectionInfo 
         message: 'OTP sent to your phone',
         otpRef,
         maskedPhone,
-        expiresIn: 300, // 5 minutes in seconds
-        // DEV ONLY: ลบบรรทัดนี้ใน production
-        devOtp: process.env.NODE_ENV !== 'production' ? otpCode : undefined
+        expiresIn: 300,
+        devOtp: otpCode
     };
 };
 
@@ -476,7 +477,7 @@ const resendOTP = async (userId) => {
         otpRef,
         maskedPhone,
         expiresIn: 300,
-        devOtp: process.env.NODE_ENV !== 'production' ? otpCode : undefined
+        devOtp: otpCode
     };
 };
 

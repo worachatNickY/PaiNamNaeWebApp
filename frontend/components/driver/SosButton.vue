@@ -9,12 +9,12 @@
         </button>
     </div>
 
-    <!-- SOS Modal -->
+    <!-- SOS Modal: จำกัดความสูง + เลื่อนเนื้อได้ภายใน modal -->
     <Teleport to="body">
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div class="w-full max-w-md mx-4 overflow-hidden bg-white shadow-2xl rounded-2xl">
-                <!-- Header -->
-                <div class="p-6 text-center text-white bg-gradient-to-r from-red-600 to-red-700">
+        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 overflow-y-auto">
+            <div class="w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden bg-white shadow-2xl rounded-2xl">
+                <!-- Header (ไม่ย่อ) -->
+                <div class="flex-shrink-0 p-4 sm:p-6 text-center text-white bg-gradient-to-r from-red-600 to-red-700">
                     <div
                         class="flex items-center justify-center w-20 h-20 mx-auto mb-4 border-4 border-white rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24"
@@ -23,31 +23,20 @@
                                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-<<<<<<< Updated upstream
-                    <h2 class="text-2xl font-bold">Emergency SOS</h2>
-                    <p class="mt-2 text-red-100">ขอความช่วยเหลือฉุกเฉิน</p>
-=======
                     <h2 class="text-xl sm:text-2xl font-bold">รายงานเหตุ / ปัญหาระหว่างการเดินทาง</h2>
                     <p class="mt-1 sm:mt-2 text-sm sm:text-base text-red-100">
                         ใช้รายงานเหตุไม่ปลอดภัย อุบัติเหตุ หรือปัญหาระหว่างการเดินทางให้ทีมงานทราบ
                     </p>
->>>>>>> Stashed changes
                 </div>
 
-                <!-- Body -->
-                <div class="p-6">
+                <!-- Body (เลื่อนได้เมื่อเนื้อหายาว) -->
+                <div class="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6">
                     <!-- Emergency Type Selection -->
-<<<<<<< Updated upstream
-                    <div class="mb-6">
-                        <label class="block mb-3 text-sm font-semibold text-gray-700">ประเภทเหตุฉุกเฉิน</label>
-                        <div class="grid grid-cols-2 gap-3">
-=======
                     <div class="mb-4 sm:mb-4">
                         <label class="block mb-2 sm:mb-3 text-sm font-semibold text-gray-700">
                             ประเภทเหตุ / ปัญหาหลัก
                         </label>
                         <div class="grid grid-cols-2 gap-2 sm:gap-3">
->>>>>>> Stashed changes
                             <button v-for="type in emergencyTypes" :key="type.value" @click="selectedType = type.value"
                                 :class="[
                                     'p-4 rounded-xl border-2 transition-all text-center',
@@ -98,15 +87,10 @@
                     </div>
 
                     <!-- Description -->
-<<<<<<< Updated upstream
-                    <div class="mb-6">
-                        <label class="block mb-2 text-sm font-semibold text-gray-700">รายละเอียดเพิ่มเติม (ถ้ามี)</label>
-=======
                     <div class="mb-4 sm:mb-6">
                         <label class="block mb-2 text-sm font-semibold text-gray-700">
                             รายละเอียดเหตุการณ์ (ถ้ามี)
                         </label>
->>>>>>> Stashed changes
                         <textarea v-model="description" rows="2"
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500"
                             placeholder="อธิบายสิ่งที่เกิดขึ้น เช่น มีผู้บาดเจ็บ จุดที่เกิดเหตุ สภาพรถ ฯลฯ"></textarea>
@@ -177,8 +161,8 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
-                <div class="flex gap-3 px-6 pb-6">
+                <!-- Actions (ปุ่มอยู่ล่างเสมอ) -->
+                <div class="flex-shrink-0 flex gap-3 px-4 sm:px-6 py-4 bg-white border-t border-gray-100">
                     <button @click="closeModal"
                         class="flex-1 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors bg-gray-100 rounded-xl hover:bg-gray-200">
                         ยกเลิก
@@ -289,15 +273,17 @@ const getLocation = () => {
                 }
                 locationLoading.value = false
 
-                // Try to get address (optional)
+                // Try to get address (optional) - use backend API to avoid CORS
                 try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.value.latitude}&lon=${location.value.longitude}&accept-language=th`
-                    )
-                    const data = await response.json()
-                    locationAddress.value = data.display_name || ''
+                    const response = await $api(`/maps/reverse-geocode?lat=${location.value.latitude}&lng=${location.value.longitude}`)
+                    // Response structure: { success: true, data: { formatted_address: "...", ... } }
+                    if (response?.formatted_address) {
+                        locationAddress.value = response.formatted_address
+                    } else if (response?.data?.formatted_address) {
+                        locationAddress.value = response.data.formatted_address
+                    }
                 } catch (e) {
-                    console.log('Could not get address')
+                    console.log('Could not get address:', e)
                 }
             },
             (error) => {
