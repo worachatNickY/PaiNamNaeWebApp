@@ -7,9 +7,9 @@
                 <main class="flex-1 p-8">
                     <!-- Header -->
                     <div class="mb-8">
-                        <h1 class="text-2xl font-bold text-gray-900">ประวัติเหตุฉุกเฉิน (SOS)</h1>
+                        <h1 class="text-2xl font-bold text-gray-900">รายการขอความช่วยเหลือ</h1>
                         <p class="mt-1 text-gray-600">
-                            ดูคำขอ SOS ที่คุณเคยส่ง พร้อมสถานะการช่วยเหลือจากทีมงาน
+                            ดูคำขอ รายการ ที่คุณเคยส่ง พร้อมสถานะการช่วยเหลือจากทีมงาน
                         </p>
                     </div>
 
