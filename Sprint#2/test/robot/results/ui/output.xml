@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.2 (Python 3.14.2 on win32)" generated="2026-03-04T20:22:04.473069" rpa="false" schemaversion="5">
+<suite id="s1" name="UI Tests" source="C:\Users\taran\Downloads\PaiNamNaeWebApp-main (3)\PaiNamNaeWebApp-main\Sprint#2\test\robot\pbi_ui_tests.robot">
+<kw name="Setup Browser" type="SETUP">
+<kw name="Get Chrome Options" owner="browser_setup">
+<msg time="2026-03-04T20:22:04.740280" level="INFO">${options} = &lt;selenium.webdriver.chrome.options.Options object at 0x000001E6FA695BE0&gt;</msg>
+<var>${options}</var>
+<status status="PASS" start="2026-03-04T20:22:04.740117" elapsed="0.000197"/>
+</kw>
+<kw name="Get Chrome Service" owner="browser_setup">
+<msg time="2026-03-04T20:22:04.740601" level="INFO">====== WebDriver manager ======</msg>
+<msg time="2026-03-04T20:22:06.327978" level="INFO">Get LATEST chromedriver version for google-chrome</msg>
+<msg time="2026-03-04T20:22:06.727972" level="INFO">Get LATEST chromedriver version for google-chrome</msg>
+<msg time="2026-03-04T20:22:07.123844" level="INFO">Driver [C:\Users\taran\.wdm\drivers\chromedriver\win64\145.0.7632.117\chromedriver-win32/chromedriver.exe] found in cache</msg>
+<msg time="2026-03-04T20:22:07.124551" level="INFO">${service} = &lt;selenium.webdriver.chrome.service.Service object at 0x000001E6FA695A90&gt;</msg>
+<var>${service}</var>
+<doc>สร้าง Chrome Service พร้อม ChromeDriver ที่ถูกต้อง</doc>
+<status status="PASS" start="2026-03-04T20:22:04.740420" elapsed="2.384164"/>
+</kw>
+<kw name="Create Webdriver" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:07.127407" level="INFO">Creating an instance of the Chrome WebDriver.</msg>
+<arg>Chrome</arg>
+<arg>options=${options}</arg>
+<arg>service=${service}</arg>
+<doc>Creates an instance of Selenium WebDriver.</doc>
+<status status="PASS" start="2026-03-04T20:22:07.124742" elapsed="1.195423"/>
+</kw>
+<kw name="Set Window Size" owner="SeleniumLibrary">
+<arg>1920</arg>
+<arg>1080</arg>
+<doc>Sets current windows size to given ``width`` and ``height``.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.320354" elapsed="0.031494"/>
+</kw>
+<doc>เตรียมเบราว์เซอร์พร้อม Options และ Service</doc>
+<status status="PASS" start="2026-03-04T20:22:04.739437" elapsed="3.612557"/>
+</kw>
+<test id="s1-t1" name="TC-UI-001 เข้าสู่ระบบและไปที่หน้ารีวิว" line="42">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:08.353633" level="INFO">Opening url 'https://csse4169.cpkku.com/login'</msg>
+<arg>${FRONTEND_URL}/login</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.353434" elapsed="0.369586"/>
+</kw>
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>id=identifier</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.723516" elapsed="0.028410"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:08.752678" level="INFO">Typing text 'user1111' into text field 'id=identifier'.</msg>
+<arg>id=identifier</arg>
+<arg>${USER}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.752309" elapsed="0.079057"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:08.831964" level="INFO">Typing text '123123aq' into text field 'id=password'.</msg>
+<arg>id=password</arg>
+<arg>${PASS}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.831691" elapsed="0.053598"/>
+</kw>
+<kw name="Click Button" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:08.885959" level="INFO">Clicking button 'xpath=//button[contains(.,'เข้าสู่ระบบ')]'.</msg>
+<arg>xpath=//button[contains(.,'เข้าสู่ระบบ')]</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.885694" elapsed="0.074769"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>การเดินทางของฉัน</arg>
+<arg>timeout=15s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:08.960843" elapsed="0.881873"/>
+</kw>
+<doc>ทดสอบการ Login และเข้าสู่หน้าจัดการรีวิว</doc>
+<tag>smoke</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:08.352086" elapsed="1.491004"/>
+</test>
+<test id="s1-t2" name="TC-UI-002 ตรวจสอบรายการที่สามารถรีวิวได้" line="56">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:09.847627" level="INFO">Opening url 'https://csse4169.cpkku.com/reviews'</msg>
+<arg>${FRONTEND_URL}/reviews</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-03-04T20:22:09.847269" elapsed="0.135909"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>ทริปที่รอรีวิว</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:09.983551" elapsed="0.036840"/>
+</kw>
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(.,'เขียนรีวิว')]</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.020832" elapsed="0.652316"/>
+</kw>
+<kw name="Page Should Contain Element" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:10.684696" level="INFO">Current page contains element 'xpath=//button[contains(.,'เขียนรีวิว')]'.</msg>
+<arg>xpath=//button[contains(.,'เขียนรีวิว')]</arg>
+<doc>Verifies that element ``locator`` is found on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.673568" elapsed="0.011242"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-03-04T20:22:10.685659" level="INFO">อยู่ที่หน้ารีวิวและพบรายการทริปที่พร้อมให้รีวิวแล้ว</msg>
+<arg>อยู่ที่หน้ารีวิวและพบรายการทริปที่พร้อมให้รีวิวแล้ว</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.685184" elapsed="0.000557"/>
+</kw>
+<doc>ไปที่หน้ารีวิวและเช็คว่ามีปุ่ม "เขียนรีวิว" สีน้ำเงินแสดงอยู่หรือไม่</doc>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:09.843713" elapsed="0.842307"/>
+</test>
+<test id="s1-t3" name="TC-UI-003 เปิดฟอร์มและทดสอบกรอกข้อมูลรีวิว" line="73">
+<kw name="Click Button" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:10.689146" level="INFO">Clicking button 'xpath=(//button[contains(.,'เขียนรีวิว')])[1]'.</msg>
+<arg>xpath=(//button[contains(.,'เขียนรีวิว')])[1]</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.688796" elapsed="0.149922"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>คะแนน</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.839212" elapsed="0.045634"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:10.886208" level="INFO">Typing text 'ทดสอบเขียนรีวิว: บริการดีมากครับ' into text field 'xpath=//textarea'.</msg>
+<arg>xpath=//textarea</arg>
+<arg>ทดสอบเขียนรีวิว: บริการดีมากครับ</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:10.885432" elapsed="0.114881"/>
+</kw>
+<kw name="Page Should Contain Element" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.013323" level="INFO">Current page contains element 'xpath=//button[contains(.,'ส่งรีวิวเลย')]'.</msg>
+<arg>xpath=//button[contains(.,'ส่งรีวิวเลย')]</arg>
+<doc>Verifies that element ``locator`` is found on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.000707" elapsed="0.012727"/>
+</kw>
+<doc>กดปุ่มเขียนรีวิวและตรวจสอบว่าหน้าฟอร์มแสดงขึ้นมา</doc>
+<tag>review</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:10.686523" elapsed="0.327204"/>
+</test>
+<test id="s1-t4" name="TC-UI-004 ตรวจสอบความถูกต้องของปุ่มในหน้าจอ" line="88">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.017269" level="INFO">Opening url 'https://csse4169.cpkku.com/reviews'</msg>
+<arg>${FRONTEND_URL}/reviews</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.017012" elapsed="0.042373"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>ทริปที่รอรีวิว</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.059763" elapsed="0.023173"/>
+</kw>
+<kw name="Run Keyword And Return Status" owner="BuiltIn">
+<kw name="Page Should Contain Element" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.220426" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-4.png"&gt;&lt;img src="selenium-screenshot-4.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2026-03-04T20:22:11.220669" level="FAIL">Page should have contained element 'xpath=//button[contains(.,'เขียนรีวิว')]' but did not.</msg>
+<arg>xpath=//button[contains(.,'เขียนรีวิว')]</arg>
+<doc>Verifies that element ``locator`` is found on the current page.</doc>
+<status status="FAIL" start="2026-03-04T20:22:11.084126" elapsed="0.138877">Page should have contained element 'xpath=//button[contains(.,'เขียนรีวิว')]' but did not.</status>
+</kw>
+<msg time="2026-03-04T20:22:11.223207" level="INFO">${has_write} = False</msg>
+<var>${has_write}</var>
+<arg>Page Should Contain Element</arg>
+<arg>xpath=//button[contains(.,'เขียนรีวิว')]</arg>
+<doc>Runs the specified keyword and returns the status as a Boolean value.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.083485" elapsed="0.139759"/>
+</kw>
+<if>
+<branch type="IF" condition="${has_write}">
+<kw name="Page Should Not Contain Element" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(.,'ดูรีวิว')]</arg>
+<doc>Verifies that element ``locator`` is not found on the current page.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:11.223748" elapsed="0.000033"/>
+</kw>
+<status status="NOT RUN" start="2026-03-04T20:22:11.223522" elapsed="0.000297"/>
+</branch>
+<status status="PASS" start="2026-03-04T20:22:11.223482" elapsed="0.000378"/>
+</if>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-03-04T20:22:11.224367" level="INFO">ตรวจสอบ Logic ปุ่มสำเร็จโดยไม่ต้องวน Loop</msg>
+<arg>ตรวจสอบ Logic ปุ่มสำเร็จโดยไม่ต้องวน Loop</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.224041" elapsed="0.000385"/>
+</kw>
+<doc>เช็คแบบองค์รวมว่าต้องไม่มีปุ่ม 'ดูรีวิว' แสดงขึ้นมาปนกับทริปที่ยังไม่ได้รีวิว</doc>
+<tag>logic</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:11.014259" elapsed="0.210392"/>
+</test>
+<test id="s1-t5" name="TC-UI-005 ตรวจสอบข้อจำกัด 500 อักษร (Simulation)" line="100">
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>xpath=(//button[contains(.,'เขียนรีวิว')])[1]</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.227585" elapsed="0.245060"/>
+</kw>
+<kw name="Click Button" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.473358" level="INFO">Clicking button 'xpath=(//button[contains(.,'เขียนรีวิว')])[1]'.</msg>
+<arg>xpath=(//button[contains(.,'เขียนรีวิว')])[1]</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.473085" elapsed="0.152904"/>
+</kw>
+<kw name="Wait Until Element Is Visible" owner="SeleniumLibrary">
+<arg>xpath=//textarea</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until the element ``locator`` is visible.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.627374" elapsed="0.241497"/>
+</kw>
+<kw name="Execute Javascript" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.871303" level="INFO">Executing JavaScript:
+document.querySelector('textarea').setAttribute('maxlength', '500')
+Without any arguments.</msg>
+<arg>document.querySelector('textarea').setAttribute('maxlength', '500')</arg>
+<doc>Executes the given JavaScript code with possible arguments.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.869542" elapsed="0.009153"/>
+</kw>
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2026-03-04T20:22:11.879618" level="INFO">${long_text} = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...</msg>
+<var>${long_text}</var>
+<arg>"A" * 510</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.879077" elapsed="0.000580"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:11.880309" level="INFO">Typing text 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' into text field 'xpath=//textarea'.</msg>
+<arg>xpath=//textarea</arg>
+<arg>${long_text}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:11.879957" elapsed="0.471345"/>
+</kw>
+<kw name="Get Value" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:12.368852" level="INFO">${current_val} = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...</msg>
+<var>${current_val}</var>
+<arg>xpath=//textarea</arg>
+<doc>Returns the value attribute of the element identified by ``locator``.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.351736" elapsed="0.017189"/>
+</kw>
+<kw name="Get Length" owner="BuiltIn">
+<msg time="2026-03-04T20:22:12.371083" level="INFO">Length is 500.</msg>
+<msg time="2026-03-04T20:22:12.371316" level="INFO">${length} = 500</msg>
+<var>${length}</var>
+<arg>${current_val}</arg>
+<doc>Returns and logs the length of the given item as an integer.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.369392" elapsed="0.001964"/>
+</kw>
+<kw name="Should Be True" owner="BuiltIn">
+<arg>${length} &lt;= 500</arg>
+<arg>msg=ระบบยอมให้พิมพ์เกิน 500 ตัวอักษร!</arg>
+<doc>Fails if the given condition is not true.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.377762" elapsed="0.001180"/>
+</kw>
+<kw name="Log" owner="BuiltIn">
+<msg time="2026-03-04T20:22:12.380309" level="INFO">ความยาวที่ถูกจำกัดคือ: 500</msg>
+<arg>ความยาวที่ถูกจำกัดคือ: ${length}</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.379736" elapsed="0.000672"/>
+</kw>
+<doc>จำลองการจำกัดอักษรโดยไม่ต้องแก้โค้ดหน้าเว็บจริง</doc>
+<tag>requirement</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:11.225121" elapsed="1.155571"/>
+</test>
+<test id="s1-t6" name="TC-UI-006 ตรวจสอบกฎ 7 วัน และทริปที่ยังไม่เสร็จ" line="125">
+<kw name="Go To" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:12.384817" level="INFO">Opening url 'https://csse4169.cpkku.com/reviews'</msg>
+<arg>${FRONTEND_URL}/reviews</arg>
+<doc>Navigates the current browser window to the provided ``url``.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.384517" elapsed="0.058751"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>ทริปที่รอรีวิว</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.443724" elapsed="0.020189"/>
+</kw>
+<kw name="Page Should Not Contain Element" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:12.477013" level="INFO">Current page does not contain element 'xpath=//div[contains(.,'กำลังดำเนินการ')]//button'.</msg>
+<arg>xpath=//div[contains(.,'กำลังดำเนินการ')]//button</arg>
+<doc>Verifies that element ``locator`` is not found on the current page.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.464310" elapsed="0.012858"/>
+</kw>
+<kw name="Run Keyword And Return Status" owner="BuiltIn">
+<kw name="Page Should Contain" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:12.668315" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-5.png"&gt;&lt;img src="selenium-screenshot-5.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2026-03-04T20:22:12.668563" level="FAIL">Page should have contained text 'หมดเขตรีวิว' but did not.</msg>
+<arg>หมดเขตรีวิว</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="FAIL" start="2026-03-04T20:22:12.478200" elapsed="0.191666">Page should have contained text 'หมดเขตรีวิว' but did not.</status>
+</kw>
+<msg time="2026-03-04T20:22:12.670122" level="INFO">${is_expired} = False</msg>
+<var>${is_expired}</var>
+<arg>Page Should Contain</arg>
+<arg>หมดเขตรีวิว</arg>
+<doc>Runs the specified keyword and returns the status as a Boolean value.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.477615" elapsed="0.192550"/>
+</kw>
+<if>
+<branch type="IF" condition="${is_expired}">
+<kw name="Element Should Be Disabled" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(.,'หมดเขตรีวิว')]</arg>
+<doc>Verifies that element identified by ``locator`` is disabled.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:12.670959" elapsed="0.000061"/>
+</kw>
+<status status="NOT RUN" start="2026-03-04T20:22:12.670554" elapsed="0.000534"/>
+</branch>
+<status status="PASS" start="2026-03-04T20:22:12.670482" elapsed="0.000696"/>
+</if>
+<doc>เช็คทริปหมดอายุต้องกดไม่ได้ และทริปไม่เสร็จต้องไม่มีปุ่ม</doc>
+<tag>time_limit</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:12.381314" elapsed="0.290096"/>
+</test>
+<test id="s1-t7" name="TC-UI-007 ตรวจสอบสิทธิ์ (ผู้ใช้ทั่วไปห้ามลบรีวิว)" line="140">
+<kw name="Run Keyword And Return Status" owner="BuiltIn">
+<kw name="Page Should Contain Element" owner="SeleniumLibrary">
+<msg time="2026-03-04T20:22:12.894551" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-6.png"&gt;&lt;img src="selenium-screenshot-6.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2026-03-04T20:22:12.894823" level="FAIL">Page should have contained element 'xpath=//button[contains(.,'ดูรีวิว')]' but did not.</msg>
+<arg>xpath=//button[contains(.,'ดูรีวิว')]</arg>
+<doc>Verifies that element ``locator`` is found on the current page.</doc>
+<status status="FAIL" start="2026-03-04T20:22:12.674788" elapsed="0.221356">Page should have contained element 'xpath=//button[contains(.,'ดูรีวิว')]' but did not.</status>
+</kw>
+<msg time="2026-03-04T20:22:12.896353" level="INFO">${has_view_btn} = False</msg>
+<var>${has_view_btn}</var>
+<arg>Page Should Contain Element</arg>
+<arg>xpath=//button[contains(.,'ดูรีวิว')]</arg>
+<doc>Runs the specified keyword and returns the status as a Boolean value.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.674291" elapsed="0.222098"/>
+</kw>
+<if>
+<branch type="IF" condition="${has_view_btn}">
+<kw name="Click Button" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(.,'ดูรีวิว')]</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:12.897047" elapsed="0.000047"/>
+</kw>
+<kw name="Wait Until Page Contains" owner="SeleniumLibrary">
+<arg>คะแนน</arg>
+<arg>timeout=10s</arg>
+<doc>Waits until ``text`` appears on the current page.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:12.897238" elapsed="0.000040"/>
+</kw>
+<kw name="Page Should Not Contain Element" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(.,'ลบ')]</arg>
+<doc>Verifies that element ``locator`` is not found on the current page.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:12.897416" elapsed="0.000036"/>
+</kw>
+<kw name="Page Should Not Contain Element" owner="SeleniumLibrary">
+<arg>xpath=//button[contains(@class, 'delete')]</arg>
+<doc>Verifies that element ``locator`` is not found on the current page.</doc>
+<status status="NOT RUN" start="2026-03-04T20:22:12.897578" elapsed="0.000035"/>
+</kw>
+<status status="NOT RUN" start="2026-03-04T20:22:12.896764" elapsed="0.000903"/>
+</branch>
+<status status="PASS" start="2026-03-04T20:22:12.896709" elapsed="0.001035"/>
+</if>
+<doc>ผู้ใช้ต้องไม่เห็นปุ่มลบในหน้าดูรีวิวของตัวเอง</doc>
+<tag>permission</tag>
+<tag>ui</tag>
+<status status="PASS" start="2026-03-04T20:22:12.671949" elapsed="0.226054"/>
+</test>
+<kw name="Close All Browsers" owner="SeleniumLibrary" type="TEARDOWN">
+<doc>Closes all open browsers and resets the browser cache.</doc>
+<status status="PASS" start="2026-03-04T20:22:12.899047" elapsed="2.166009"/>
+</kw>
+<status status="PASS" start="2026-03-04T20:22:04.474510" elapsed="10.590653"/>
+</suite>
+<statistics>
+<total>
+<stat pass="7" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="1" fail="0" skip="0">logic</stat>
+<stat pass="1" fail="0" skip="0">permission</stat>
+<stat pass="1" fail="0" skip="0">requirement</stat>
+<stat pass="1" fail="0" skip="0">review</stat>
+<stat pass="1" fail="0" skip="0">smoke</stat>
+<stat pass="1" fail="0" skip="0">time_limit</stat>
+<stat pass="7" fail="0" skip="0">ui</stat>
+</tag>
+<suite>
+<stat name="UI Tests" id="s1" pass="7" fail="0" skip="0">UI Tests</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>

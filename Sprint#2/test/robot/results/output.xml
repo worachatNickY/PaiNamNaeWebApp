@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.2 (Python 3.14.2 on win32)" generated="2026-03-04T20:20:39.164759" rpa="false" schemaversion="5">
+<suite id="s1" name="Api Tests" source="C:\Users\taran\Downloads\PaiNamNaeWebApp-main (3)\PaiNamNaeWebApp-main\Sprint#2\test\robot\api_tests.robot">
+<kw name="Create API Session" owner="common" type="SETUP">
+<kw name="Create Session" owner="RequestsLibrary">
+<msg time="2026-03-04T20:20:39.295396" level="INFO">Creating Session using : alias=api, url=https://painamnaewebapp-production.up.railway.app/api, headers={},                     cookies={}, auth=None, timeout=None, proxies=None, verify=True,                     debug=0 </msg>
+<arg>api</arg>
+<arg>${BASE_URL}</arg>
+<arg>verify=${verify_ssl}</arg>
+<arg>disable_warnings=${True}</arg>
+<doc>Create Session: create a HTTP session to a server</doc>
+<status status="PASS" start="2026-03-04T20:20:39.295131" elapsed="0.000461"/>
+</kw>
+<doc>สร้าง Session สำหรับเรียกใช้ API (เหลือแค่อันเดียวแล้ว)</doc>
+<status status="PASS" start="2026-03-04T20:20:39.294519" elapsed="0.001161"/>
+</kw>
+<test id="s1-t1" name="Emergency - Create Request Success (As Driver)" line="29">
+<kw name="Get Auth Token For User" owner="common">
+<kw name="Create Dictionary" owner="BuiltIn">
+<msg time="2026-03-04T20:20:39.297242" level="INFO">${body} = {'email': 'driver@test.com', 'password': '123456'}</msg>
+<var>${body}</var>
+<arg>email=${email}</arg>
+<arg>password=${password}</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="PASS" start="2026-03-04T20:20:39.296831" elapsed="0.000433"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<msg time="2026-03-04T20:20:40.123597" level="INFO">POST Request : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ path_url=/api/auth/login 
+ headers={'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '50', 'Content-Type': 'application/json'} 
+ body=b'{"email": "driver@test.com", "password": "123456"}' 
+ </msg>
+<msg time="2026-03-04T20:20:40.123750" level="INFO">POST Response : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ status=401, reason=Unauthorized 
+ headers={'Connection': 'keep-alive', 'Content-Length': '61', 'Access-Control-Allow-Credentials': 'true', 'Content-Security-Policy': "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests", 'Content-Type': 'application/json; charset=utf-8', 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Resource-Policy': 'same-origin', 'Etag': 'W/"3d-0toiamGqKJ3JkE3ODE9GMUIG1zo"', 'Origin-Agent-Cluster': '?1', 'Referrer-Policy': 'no-referrer', 'Server': 'railway-edge', 'Strict-Transport-Security': 'max-age=15552000; includeSubDomains', 'X-Content-Type-Options': 'nosniff', 'X-Dns-Prefetch-Control': 'off', 'X-Download-Options': 'noopen', 'X-Frame-Options': 'SAMEORIGIN', 'X-Permitted-Cross-Domain-Policies': 'none', 'X-Railway-Edge': 'railway/asia-southeast1-eqsg3a', 'X-Railway-Request-Id': 'LT6mqnLBTiSVyQU70ubPiw', 'X-Xss-Protection': '0', 'Accept-Ranges': 'bytes', 'Via': '1.1 varnish, 1.1 varnish', 'Date': 'Wed, 04 Mar 2026 13:20:40 GMT', 'X-Cache': 'MISS, MISS', 'X-Cache-Hits': '0, 0', 'X-Timer': 'S1772630440.587938,VS0,VE415', 'Vary': 'Origin', 'X-Railway-CDN-Edge': 'fastly/cache-bkk2310030-BKK'} 
+ body={"success":false,"message":"Invalid credentials","data":null} 
+ </msg>
+<msg time="2026-03-04T20:20:40.123897" level="INFO">${response} = &lt;Response [401]&gt;</msg>
+<var>${response}</var>
+<arg>api</arg>
+<arg>/auth/login</arg>
+<arg>json=${body}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="PASS" start="2026-03-04T20:20:39.297339" elapsed="0.826582"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>\n[DEBUG] Login Attempt: ${email}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.124064" elapsed="0.000431"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>[DEBUG] Response: ${response.json()}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.124605" elapsed="0.000674"/>
+</kw>
+<if>
+<branch type="IF" condition="${response.json()['success']} == ${False}">
+<kw name="Fail" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.126320" level="FAIL">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</msg>
+<arg>Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</arg>
+<doc>Fails the test with the given message and optionally alters its tags.</doc>
+<status status="FAIL" start="2026-03-04T20:20:40.125970" elapsed="0.006414">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<status status="FAIL" start="2026-03-04T20:20:40.125399" elapsed="0.007156">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</branch>
+<status status="FAIL" start="2026-03-04T20:20:40.125363" elapsed="0.007257">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</if>
+<return>
+<value>${response.json()['data']['token']}</value>
+<status status="NOT RUN" start="2026-03-04T20:20:40.132709" elapsed="0.000031"/>
+</return>
+<var>${token}</var>
+<arg>${DRIVER_EMAIL}</arg>
+<arg>${DRIVER_PASSWORD}</arg>
+<status status="FAIL" start="2026-03-04T20:20:39.296599" elapsed="0.836268">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${headers}</var>
+<arg>Authorization=Bearer ${token}</arg>
+<arg>Content-Type=application_json</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.133127" elapsed="0.000021"/>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${body}</var>
+<arg>type=ACCIDENT</arg>
+<arg>description=รถเกิดอุบัติเหตุ ยางระเบิด ต้องการรถยก</arg>
+<arg>latitude=16.43</arg>
+<arg>longitude=102.82</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.133287" elapsed="0.000016"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<var>${response}</var>
+<arg>api</arg>
+<arg>${EMERGENCY_API}</arg>
+<arg>json=${body}</arg>
+<arg>headers=${headers}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.133558" elapsed="0.000025"/>
+</kw>
+<kw name="Should Be True" owner="BuiltIn">
+<arg>${response.status_code} &lt; 300</arg>
+<doc>Fails if the given condition is not true.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.133803" elapsed="0.000033"/>
+</kw>
+<kw name="Dictionary Should Contain Key" owner="Collections">
+<arg>${response.json()}</arg>
+<arg>id</arg>
+<doc>Fails if ``key`` is not found from ``dictionary``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.134012" elapsed="0.000019"/>
+</kw>
+<doc>จำลองคนขับกดส่งเหตุฉุกเฉินจากหน้าจอ (Popup)</doc>
+<tag>emergency</tag>
+<tag>pbi-15</tag>
+<tag>smoke</tag>
+<status status="FAIL" start="2026-03-04T20:20:39.295741" elapsed="0.838518">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</test>
+<test id="s1-t2" name="Emergency - Create Request Fail (Unauthorized)" line="47">
+<kw name="Create Dictionary" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.136532" level="INFO">${body} = {'type': 'MEDICAL', 'description': 'Test', 'latitude': '0', 'longitude': '0'}</msg>
+<var>${body}</var>
+<arg>type=MEDICAL</arg>
+<arg>description=Test</arg>
+<arg>latitude=0</arg>
+<arg>longitude=0</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.136035" elapsed="0.000534"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<msg time="2026-03-04T20:20:40.547376" level="INFO">POST Request : url=https://painamnaewebapp-production.up.railway.app/api/emergency/requests 
+ path_url=/api/emergency/requests 
+ headers={'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '77', 'Content-Type': 'application/json'} 
+ body=b'{"type": "MEDICAL", "description": "Test", "latitude": "0", "longitude": "0"}' 
+ </msg>
+<msg time="2026-03-04T20:20:40.547495" level="INFO">POST Response : url=https://painamnaewebapp-production.up.railway.app/api/emergency/requests 
+ status=404, reason=Not Found 
+ headers={'Connection': 'keep-alive', 'Content-Length': '77', 'Access-Control-Allow-Credentials': 'true', 'Content-Security-Policy': "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests", 'Content-Type': 'application/json; charset=utf-8', 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Resource-Policy': 'same-origin', 'Etag': 'W/"4d-YPis/TQ2NVGKjTUf/zgOHnsq/IY"', 'Origin-Agent-Cluster': '?1', 'Referrer-Policy': 'no-referrer', 'Server': 'railway-edge', 'Strict-Transport-Security': 'max-age=15552000; includeSubDomains', 'X-Content-Type-Options': 'nosniff', 'X-Dns-Prefetch-Control': 'off', 'X-Download-Options': 'noopen', 'X-Frame-Options': 'SAMEORIGIN', 'X-Permitted-Cross-Domain-Policies': 'none', 'X-Railway-Edge': 'railway/asia-southeast1-eqsg3a', 'X-Railway-Request-Id': 'otWwC91pRBqumxI0oB_USg', 'X-Xss-Protection': '0', 'Accept-Ranges': 'bytes', 'Via': '1.1 varnish, 1.1 varnish', 'Date': 'Wed, 04 Mar 2026 13:20:40 GMT', 'X-Cache': 'MISS, MISS', 'X-Cache-Hits': '0, 0', 'X-Timer': 'S1772630440.027405,VS0,VE399', 'Vary': 'Origin', 'X-Railway-CDN-Edge': 'fastly/cache-bkk2310030-BKK'} 
+ body={"success":false,"message":"Cannot POST /api/emergency/requests","data":null} 
+ </msg>
+<msg time="2026-03-04T20:20:40.547641" level="INFO">${response} = &lt;Response [404]&gt;</msg>
+<var>${response}</var>
+<arg>api</arg>
+<arg>${EMERGENCY_API}</arg>
+<arg>json=${body}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.136788" elapsed="0.410880"/>
+</kw>
+<kw name="Should Be Equal As Strings" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.549010" level="FAIL">Variable '${STATUS_UNAUTHORIZED}' not found.</msg>
+<arg>${response.status_code}</arg>
+<arg>${STATUS_UNAUTHORIZED}</arg>
+<doc>Fails if objects are unequal after converting them to strings.</doc>
+<status status="FAIL" start="2026-03-04T20:20:40.547965" elapsed="0.001076">Variable '${STATUS_UNAUTHORIZED}' not found.</status>
+</kw>
+<doc>พยายามส่งข้อมูลโดยไม่ใส่ Token</doc>
+<tag>negative</tag>
+<tag>pbi-15</tag>
+<status status="FAIL" start="2026-03-04T20:20:40.134986" elapsed="0.414308">Variable '${STATUS_UNAUTHORIZED}' not found.</status>
+</test>
+<test id="s1-t3" name="Submit Report Via Popup API" line="59">
+<kw name="Get Auth Token For User" owner="common">
+<kw name="Create Dictionary" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.551405" level="INFO">${body} = {'email': 'passenger@test.com', 'password': '123456'}</msg>
+<var>${body}</var>
+<arg>email=${email}</arg>
+<arg>password=${password}</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.551117" elapsed="0.000315"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<msg time="2026-03-04T20:20:40.957119" level="INFO">POST Request : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ path_url=/api/auth/login 
+ headers={'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '53', 'Content-Type': 'application/json'} 
+ body=b'{"email": "passenger@test.com", "password": "123456"}' 
+ </msg>
+<msg time="2026-03-04T20:20:40.957209" level="INFO">POST Response : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ status=401, reason=Unauthorized 
+ headers={'Connection': 'keep-alive', 'Content-Length': '61', 'Access-Control-Allow-Credentials': 'true', 'Content-Security-Policy': "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests", 'Content-Type': 'application/json; charset=utf-8', 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Resource-Policy': 'same-origin', 'Etag': 'W/"3d-0toiamGqKJ3JkE3ODE9GMUIG1zo"', 'Origin-Agent-Cluster': '?1', 'Referrer-Policy': 'no-referrer', 'Server': 'railway-edge', 'Strict-Transport-Security': 'max-age=15552000; includeSubDomains', 'X-Content-Type-Options': 'nosniff', 'X-Dns-Prefetch-Control': 'off', 'X-Download-Options': 'noopen', 'X-Frame-Options': 'SAMEORIGIN', 'X-Permitted-Cross-Domain-Policies': 'none', 'X-Railway-Edge': 'railway/asia-southeast1-eqsg3a', 'X-Railway-Request-Id': 'qPTuEY5wS_S5_cpnDcO5xA', 'X-Xss-Protection': '0', 'Accept-Ranges': 'bytes', 'Via': '1.1 varnish, 1.1 varnish', 'Date': 'Wed, 04 Mar 2026 13:20:40 GMT', 'X-Cache': 'MISS, MISS', 'X-Cache-Hits': '0, 0', 'X-Timer': 'S1772630440.441756,VS0,VE395', 'Vary': 'Origin', 'X-Railway-CDN-Edge': 'fastly/cache-bkk2310030-BKK'} 
+ body={"success":false,"message":"Invalid credentials","data":null} 
+ </msg>
+<msg time="2026-03-04T20:20:40.957316" level="INFO">${response} = &lt;Response [401]&gt;</msg>
+<var>${response}</var>
+<arg>api</arg>
+<arg>/auth/login</arg>
+<arg>json=${body}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.551509" elapsed="0.405826"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>\n[DEBUG] Login Attempt: ${email}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.957478" elapsed="0.000430"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>[DEBUG] Response: ${response.json()}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.958042" elapsed="0.000593"/>
+</kw>
+<if>
+<branch type="IF" condition="${response.json()['success']} == ${False}">
+<kw name="Fail" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.959313" level="FAIL">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</msg>
+<arg>Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</arg>
+<doc>Fails the test with the given message and optionally alters its tags.</doc>
+<status status="FAIL" start="2026-03-04T20:20:40.959109" elapsed="0.000286">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<status status="FAIL" start="2026-03-04T20:20:40.958724" elapsed="0.000719">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</branch>
+<status status="FAIL" start="2026-03-04T20:20:40.958695" elapsed="0.000798">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</if>
+<return>
+<value>${response.json()['data']['token']}</value>
+<status status="NOT RUN" start="2026-03-04T20:20:40.959535" elapsed="0.000014"/>
+</return>
+<var>${token}</var>
+<arg>${PASSENGER_EMAIL}</arg>
+<arg>${PASSENGER_PASSWORD}</arg>
+<status status="FAIL" start="2026-03-04T20:20:40.550878" elapsed="0.408739">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${headers}</var>
+<arg>Authorization=Bearer ${token}</arg>
+<arg>Content-Type=application_json</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.959834" elapsed="0.000023"/>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${body}</var>
+<arg>title=ขับรถเร็วเกินกำหนด</arg>
+<arg>content=คนขับใช้ความเร็วสูงมากบนทางด่วน</arg>
+<arg>category=SAFETY</arg>
+<arg>routeId=123</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.960034" elapsed="0.000019"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<var>${response}</var>
+<arg>api</arg>
+<arg>${REPORT_API}</arg>
+<arg>json=${body}</arg>
+<arg>headers=${headers}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.960222" elapsed="0.000018"/>
+</kw>
+<kw name="Should Be True" owner="BuiltIn">
+<arg>${response.status_code} &lt; 300</arg>
+<doc>Fails if the given condition is not true.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:40.960414" elapsed="0.000018"/>
+</kw>
+<doc>จำลองการส่งข้อมูลรายงานปัญหาพฤติกรรม (PBI-11)</doc>
+<tag>pbi-11</tag>
+<tag>reports</tag>
+<status status="FAIL" start="2026-03-04T20:20:40.549771" elapsed="0.410807">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</test>
+<test id="s1-t4" name="Verify - Emergency Service Uses ApiError Not 500" line="78">
+<kw name="Get Auth Token For User" owner="common">
+<kw name="Create Dictionary" owner="BuiltIn">
+<msg time="2026-03-04T20:20:40.962838" level="INFO">${body} = {'email': 'driver@test.com', 'password': '123456'}</msg>
+<var>${body}</var>
+<arg>email=${email}</arg>
+<arg>password=${password}</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.962558" elapsed="0.000299"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<msg time="2026-03-04T20:20:41.361976" level="INFO">POST Request : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ path_url=/api/auth/login 
+ headers={'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate, zstd', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Length': '50', 'Content-Type': 'application/json'} 
+ body=b'{"email": "driver@test.com", "password": "123456"}' 
+ </msg>
+<msg time="2026-03-04T20:20:41.362076" level="INFO">POST Response : url=https://painamnaewebapp-production.up.railway.app/api/auth/login 
+ status=401, reason=Unauthorized 
+ headers={'Connection': 'keep-alive', 'Content-Length': '61', 'Access-Control-Allow-Credentials': 'true', 'Content-Security-Policy': "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests", 'Content-Type': 'application/json; charset=utf-8', 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Resource-Policy': 'same-origin', 'Etag': 'W/"3d-0toiamGqKJ3JkE3ODE9GMUIG1zo"', 'Origin-Agent-Cluster': '?1', 'Referrer-Policy': 'no-referrer', 'Server': 'railway-edge', 'Strict-Transport-Security': 'max-age=15552000; includeSubDomains', 'X-Content-Type-Options': 'nosniff', 'X-Dns-Prefetch-Control': 'off', 'X-Download-Options': 'noopen', 'X-Frame-Options': 'SAMEORIGIN', 'X-Permitted-Cross-Domain-Policies': 'none', 'X-Railway-Edge': 'railway/asia-southeast1-eqsg3a', 'X-Railway-Request-Id': 'nJK6EwzVRxS1vERFVOLIQQ', 'X-Xss-Protection': '0', 'Accept-Ranges': 'bytes', 'Via': '1.1 varnish, 1.1 varnish', 'Date': 'Wed, 04 Mar 2026 13:20:41 GMT', 'X-Cache': 'MISS, MISS', 'X-Cache-Hits': '0, 0', 'X-Timer': 'S1772630441.853182,VS0,VE388', 'Vary': 'Origin', 'X-Railway-CDN-Edge': 'fastly/cache-bkk2310030-BKK'} 
+ body={"success":false,"message":"Invalid credentials","data":null} 
+ </msg>
+<msg time="2026-03-04T20:20:41.362201" level="INFO">${response} = &lt;Response [401]&gt;</msg>
+<var>${response}</var>
+<arg>api</arg>
+<arg>/auth/login</arg>
+<arg>json=${body}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="PASS" start="2026-03-04T20:20:40.962938" elapsed="0.399288"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>\n[DEBUG] Login Attempt: ${email}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:41.362375" elapsed="0.000490"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>[DEBUG] Response: ${response.json()}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="PASS" start="2026-03-04T20:20:41.362988" elapsed="0.000774"/>
+</kw>
+<if>
+<branch type="IF" condition="${response.json()['success']} == ${False}">
+<kw name="Fail" owner="BuiltIn">
+<msg time="2026-03-04T20:20:41.364426" level="FAIL">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</msg>
+<arg>Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</arg>
+<doc>Fails the test with the given message and optionally alters its tags.</doc>
+<status status="FAIL" start="2026-03-04T20:20:41.364212" elapsed="0.000275">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<status status="FAIL" start="2026-03-04T20:20:41.363839" elapsed="0.000694">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</branch>
+<status status="FAIL" start="2026-03-04T20:20:41.363817" elapsed="0.000742">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</if>
+<return>
+<value>${response.json()['data']['token']}</value>
+<status status="NOT RUN" start="2026-03-04T20:20:41.364596" elapsed="0.000013"/>
+</return>
+<var>${token}</var>
+<arg>${DRIVER_EMAIL}</arg>
+<arg>${DRIVER_PASSWORD}</arg>
+<status status="FAIL" start="2026-03-04T20:20:40.962337" elapsed="0.402350">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${headers}</var>
+<arg>Authorization=Bearer ${token}</arg>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:41.364869" elapsed="0.000016"/>
+</kw>
+<kw name="Create Dictionary" owner="BuiltIn">
+<var>${body}</var>
+<doc>Creates and returns a dictionary based on the given ``items``.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:41.365008" elapsed="0.000013"/>
+</kw>
+<kw name="POST On Session" owner="RequestsLibrary">
+<var>${response}</var>
+<arg>api</arg>
+<arg>${EMERGENCY_API}</arg>
+<arg>json=${body}</arg>
+<arg>headers=${headers}</arg>
+<arg>expected_status=any</arg>
+<doc>Sends a POST request on a previously created HTTP Session.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:41.365130" elapsed="0.000014"/>
+</kw>
+<kw name="Should Not Be Equal As Strings" owner="BuiltIn">
+<arg>${response.status_code}</arg>
+<arg>500</arg>
+<doc>Fails if objects are equal after converting them to strings.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:41.365271" elapsed="0.000013"/>
+</kw>
+<kw name="Log To Console" owner="BuiltIn">
+<arg>System handled error with status: ${response.status_code}</arg>
+<doc>Logs the given message to the console.</doc>
+<status status="NOT RUN" start="2026-03-04T20:20:41.365385" elapsed="0.000012"/>
+</kw>
+<doc>เช็คว่าถ้าส่งข้อมูลผิด ระบบต้องคืน Error Code ที่สวยงาม ไม่ใช่ 500</doc>
+<tag>bug-fix</tag>
+<tag>emergency</tag>
+<status status="FAIL" start="2026-03-04T20:20:40.961062" elapsed="0.404468">Login ล้มเหลว: กรุณาตรวจสอบ Email และ Password ของคุณในไฟล์ Robot</status>
+</test>
+<kw name="Delete All Sessions" owner="RequestsLibrary" type="TEARDOWN">
+<msg time="2026-03-04T20:20:41.366369" level="INFO">Deleting All Sessions</msg>
+<doc>Removes all the session objects</doc>
+<status status="PASS" start="2026-03-04T20:20:41.366294" elapsed="0.000139"/>
+</kw>
+<doc>API Tests for PaiNamNae WebApp (PBI-15 &amp; PBI-11)</doc>
+<status status="FAIL" start="2026-03-04T20:20:39.166371" elapsed="2.200088"/>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="4" skip="0">All Tests</stat>
+</total>
+<tag>
+<stat pass="0" fail="1" skip="0">bug-fix</stat>
+<stat pass="0" fail="2" skip="0">emergency</stat>
+<stat pass="0" fail="1" skip="0">negative</stat>
+<stat pass="0" fail="1" skip="0">pbi-11</stat>
+<stat pass="0" fail="2" skip="0">pbi-15</stat>
+<stat pass="0" fail="1" skip="0">reports</stat>
+<stat pass="0" fail="1" skip="0">smoke</stat>
+</tag>
+<suite>
+<stat name="Api Tests" id="s1" pass="0" fail="4" skip="0">Api Tests</stat>
+</suite>
+</statistics>
+<errors>
+<msg time="2026-03-04T20:20:39.200360" level="ERROR">Error in file 'C:\Users\taran\Downloads\PaiNamNaeWebApp-main (3)\PaiNamNaeWebApp-main\Sprint#2\test\robot\resources\common.robot' on line 19: Setting variable '${TEST_DRIVER_PASSWORD} 123123aq' failed: Invalid variable name '${TEST_DRIVER_PASSWORD} 123123aq'.</msg>
+<msg time="2026-03-04T20:20:39.200694" level="ERROR">Error in file 'C:\Users\taran\Downloads\PaiNamNaeWebApp-main (3)\PaiNamNaeWebApp-main\Sprint#2\test\robot\resources\common.robot' on line 27: Setting variable '${STATUS_UNAUTHORIZED} 401' failed: Invalid variable name '${STATUS_UNAUTHORIZED} 401'.</msg>
+</errors>
+</robot>

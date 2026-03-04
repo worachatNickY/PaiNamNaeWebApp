@@ -1,0 +1,5 @@
+# Robot Framework Testing Requirements
+robotframework>=7.0
+robotframework-requests>=0.9
+robotframework-seleniumlibrary>=6.0
+requests>=2.31.0
