@@ -420,9 +420,9 @@
         <!-- Chat Window (Driver) -->
         <div
             v-if="isChatOpen && chatTrip"
-            class="fixed inset-0 z-50 flex items-end justify-start pointer-events-none"
+            class="fixed bottom-4 left-4 z-50"
         >
-            <div class="pointer-events-auto mb-4 ml-4 flex w-full max-w-md h-[75vh] flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-gray-200">
+            <div class="flex w-full max-w-md h-[75vh] flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-gray-200">
                 <!-- Header -->
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
                     <div class="flex items-center gap-3">
@@ -453,7 +453,7 @@
                 </div>
 
                 <!-- Messages -->
-                <div class="flex-1 min-h-0 bg-gray-50">
+                <div class="flex-1 min-h-0 bg-gray-50 flex flex-col">
                     <div class="flex items-center justify-between px-3 py-1.5 text-[11px] text-gray-500 border-b border-gray-100 bg-white">
                         <span v-if="isChatDisabled">
                             แชทไม่สามารถใช้งานได้หลังจากการเดินทางเสร็จสิ้น
@@ -473,7 +473,7 @@
 
                     <div
                         ref="chatScrollEl"
-                        class="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2"
+                        class="flex-1 overflow-y-auto px-3 py-3 space-y-2"
                     >
                         <div v-if="isChatLoading && chatMessages.length === 0" class="py-6 text-sm text-center text-gray-500">
                             กำลังโหลดประวัติการสนทนา...
@@ -888,16 +888,19 @@ function scrollChatToBottom() {
     el.scrollTop = el.scrollHeight
 }
 
-async function handleSend() {
+async function handleSend(forceAllowPersonal = false) {
     if (!chatBookingId.value || !chatText.value.trim() || isSending.value || isChatDisabled.value) return
 
     const textToSend = chatText.value
 
-    const phonePattern = /\b0\d{8,9}\b/
+    // ฝั่งคนขับ: ตรวจข้อมูลส่วนตัวบน frontend ก่อนเหมือนฝั่งผู้โดยสาร
+    // จับชุดตัวเลข 9–10 หลัก (เช่น เบอร์โทรส่วนใหญ่)
+    const phonePattern = /\d{9,10}/
     const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
     const hasPersonalInfo = phonePattern.test(textToSend) || emailPattern.test(textToSend)
 
-    if (!showPersonalConfirm.value && hasPersonalInfo) {
+    // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อน
+    if (!forceAllowPersonal && hasPersonalInfo) {
         pendingPersonalText.value = textToSend
         showPersonalConfirm.value = true
         return
@@ -907,7 +910,8 @@ async function handleSend() {
     try {
         const payload = {
             text: textToSend,
-            allowPersonalInfo: hasPersonalInfo
+            // ถ้าเป็นรอบที่กดยืนยันแล้วเท่านั้นจึงส่ง allowPersonalInfo = true
+            allowPersonalInfo: forceAllowPersonal && hasPersonalInfo
         }
         const res = await $api(`/messages/${chatBookingId.value}`, {
             method: 'POST',
@@ -925,7 +929,8 @@ async function handleSend() {
             err?.message ||
             'ไม่สามารถส่งข้อความได้'
 
-        if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO') {
+        // กรณี backend ตรวจเจอข้อมูลส่วนตัวซ้ำ (กันพลาด) และยังไม่ได้ forceAllowPersonal
+        if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO' && !forceAllowPersonal) {
             pendingPersonalText.value = textToSend
             showPersonalConfirm.value = true
         } else {
@@ -950,17 +955,14 @@ function formatChatTime(iso) {
 
 function confirmSendPersonal() {
     if (!pendingPersonalText.value) {
-        if (!chatText.value.trim()) {
-            showPersonalConfirm.value = false
-            return
-        }
-    } else {
-        chatText.value = pendingPersonalText.value
-        pendingPersonalText.value = ''
+        showPersonalConfirm.value = false
+        return
     }
 
+    chatText.value = pendingPersonalText.value
+    pendingPersonalText.value = ''
     showPersonalConfirm.value = false
-    handleSend()
+    handleSend(true)
 }
 
 const getTripCount = (status) => {

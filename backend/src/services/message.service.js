@@ -2,7 +2,8 @@ const prisma = require('../utils/prisma');
 const ApiError = require('../utils/ApiError');
 
 // Simple regex patterns to detect obvious personal info
-const PHONE_REGEX = /\b0\d{8,9}\b/; // Thai-style numbers like 0XXXXXXXXX
+// จับชุดตัวเลข 9–10 หลัก (เช่น เบอร์โทรส่วนใหญ่)
+const PHONE_REGEX = /\d{9,10}/;
 const EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 
 async function getBookingForUser(bookingId, userId) {
