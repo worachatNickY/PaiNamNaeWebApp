@@ -355,12 +355,14 @@
                                     </template>
 
                                     <template v-else-if="trip.status === 'confirmed'">
-                                        <button v-if="canStartPickup(trip)"
+                                        <button
+                                            v-if="canStartPickup(trip)"
                                             @click.stop="updateTripPhase(trip, 'DRIVER_ON_THE_WAY')"
                                             class="px-4 py-2 text-sm text-white transition duration-200 bg-amber-500 rounded-md hover:bg-amber-600">
                                             กำลังไปรับผู้โดยสาร
                                         </button>
-                                        <button v-else
+                                        <button
+                                            @click.stop="openChat(trip)"
                                             class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
                                             แชทกับผู้โดยสาร
                                         </button>
@@ -414,6 +416,177 @@
         <ConfirmModal :show="isModalVisible" :title="modalContent.title" :message="modalContent.message"
             :confirmText="modalContent.confirmText" :variant="modalContent.variant" @confirm="handleConfirmAction"
             @cancel="closeConfirmModal" />
+
+        <!-- Chat Window (Driver) -->
+        <div
+            v-if="isChatOpen && chatTrip"
+            class="fixed inset-0 z-50 flex items-end justify-start pointer-events-none"
+        >
+            <div class="pointer-events-auto mb-4 ml-4 flex w-full max-w-md h-[75vh] flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-gray-200">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                            <img
+                                :src="chatTrip.passenger.image"
+                                :alt="chatTrip.passenger.name"
+                                class="w-10 h-10 rounded-full object-cover"
+                            />
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-[11px] font-medium text-white/80">แชทระหว่างคุณกับผู้โดยสาร</p>
+                            <p class="text-sm font-semibold text-white truncate">
+                                {{ chatTrip.passenger.name }}
+                            </p>
+                            <p class="text-[11px] text-blue-100 truncate">
+                                {{ chatTrip.origin }} → {{ chatTrip.destination }} • {{ chatTrip.date }} {{ chatTrip.time }}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="inline-flex items-center justify-center rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-white hover:bg-white/20"
+                        @click="closeChat"
+                    >
+                        ปิด
+                    </button>
+                </div>
+
+                <!-- Messages -->
+                <div class="flex-1 min-h-0 bg-gray-50">
+                    <div class="flex items-center justify-between px-3 py-1.5 text-[11px] text-gray-500 border-b border-gray-100 bg-white">
+                        <span v-if="isChatDisabled">
+                            แชทไม่สามารถใช้งานได้หลังจากการเดินทางเสร็จสิ้น
+                        </span>
+                        <span v-else>
+                            ใช้แชทนี้เพื่อประสานงานกับผู้โดยสาร กรุณาอย่าแชร์เบอร์โทรศัพท์หรืออีเมล
+                        </span>
+                        <button
+                            type="button"
+                            class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium text-gray-600 bg-gray-100 hover:bg-gray-200"
+                            @click="refreshChat"
+                        >
+                            <span v-if="isChatLoading">กำลังรีเฟรช...</span>
+                            <span v-else>รีเฟรช</span>
+                        </button>
+                    </div>
+
+                    <div
+                        ref="chatScrollEl"
+                        class="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2"
+                    >
+                        <div v-if="isChatLoading && chatMessages.length === 0" class="py-6 text-sm text-center text-gray-500">
+                            กำลังโหลดประวัติการสนทนา...
+                        </div>
+                        <div v-else-if="chatMessages.length === 0" class="py-6 text-sm text-center text-gray-500">
+                            ยังไม่มีข้อความในแชทนี้ เริ่มการสนทนาได้เลย
+                        </div>
+
+                        <div
+                            v-for="msg in chatMessages"
+                            :key="msg.id"
+                            class="flex"
+                            :class="msg.senderId === currentUserId ? 'justify-end' : 'justify-start'"
+                        >
+                            <div
+                                class="max-w-[75%] rounded-2xl px-3 py-1.5 text-sm leading-relaxed shadow-sm"
+                                :class="msg.senderId === currentUserId
+                                    ? 'bg-blue-600 text-white rounded-br-sm'
+                                    : 'bg-white text-gray-900 rounded-bl-sm border border-gray-100'"
+                            >
+                                <p class="whitespace-pre-wrap break-words">
+                                    {{ msg.text }}
+                                </p>
+                                <p
+                                    class="mt-1 text-[10px]"
+                                    :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'"
+                                >
+                                    {{ formatChatTime(msg.createdAt) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="border-t border-gray-200 bg-white p-2.5">
+                    <div v-if="isChatDisabled" class="px-3 py-2 text-xs text-center text-gray-500 bg-gray-50 rounded-lg">
+                        แชทนี้ไม่สามารถใช้งานได้แล้ว เนื่องจากการเดินทางเสร็จสิ้น
+                    </div>
+                    <div
+                        v-else
+                        class="flex items-end gap-1.5"
+                    >
+                        <textarea
+                            v-model="chatText"
+                            rows="1"
+                            class="flex-1 resize-none rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="พิมพ์ข้อความของคุณ (ห้ามใส่เบอร์โทรศัพท์หรืออีเมล)..."
+                            @keydown.enter.exact.prevent="handleSend"
+                        ></textarea>
+                        <button
+                            type="button"
+                            class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            :disabled="isSending || !chatText.trim()"
+                            @click="handleSend"
+                        >
+                            <span v-if="isSending">กำลังส่ง...</span>
+                            <span v-else>ส่ง</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirm sending personal info (Driver) -->
+        <div
+            v-if="showPersonalConfirm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+        >
+            <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                    ยืนยันการส่งข้อมูลติดต่อส่วนตัว
+                </h3>
+                <p class="text-sm text-gray-600 mb-3">
+                    ระบบตรวจพบว่าในข้อความของคุณมีเบอร์โทรศัพท์หรืออีเมล ซึ่งอาจเป็นข้อมูลส่วนตัว
+                    คุณแน่ใจหรือไม่ว่าต้องการส่งข้อความนี้ให้ผู้โดยสาร?
+                </p>
+                <div class="max-h-32 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 mb-4 whitespace-pre-wrap break-words">
+                    {{ pendingPersonalText }}
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button
+                        type="button"
+                        class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                        @click="showPersonalConfirm = false"
+                    >
+                        ไม่ส่ง
+                    </button>
+                    <button
+                        type="button"
+                        class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                        @click="confirmSendPersonal"
+                    >
+                        ยืนยันส่ง
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Floating Button (Driver) -->
+        <button
+            v-if="!isChatOpen && chatTrip"
+            type="button"
+            class="fixed bottom-4 left-4 z-40 inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 shadow-lg text-sm font-medium text-white hover:bg-blue-700"
+            @click="isChatOpen = true"
+        >
+            <span
+                class="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-xs font-semibold uppercase"
+            >
+                {{ chatTrip.passenger.name?.charAt(0) || 'P' }}
+            </span>
+            <span class="truncate max-w-[120px]">แชทกับ {{ chatTrip.passenger.name }}</span>
+        </button>
     </div>
 </template>
 
@@ -424,12 +597,15 @@ import 'dayjs/locale/th'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
 import ConfirmModal from '~/components/ConfirmModal.vue'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 
 dayjs.locale('th')
 dayjs.extend(buddhistEra)
 
 const { $api } = useNuxtApp()
 const { toast } = useToast()
+const { user } = useAuth()
+const currentUserId = computed(() => user.value?.id || null)
 
 // --- State Management ---
 const activeTab = ref('pending')
@@ -438,6 +614,19 @@ const isLoading = ref(false)
 const mapContainer = ref(null)
 const allTrips = ref([])
 const myRoutes = ref([])
+
+// Chat state
+const isChatOpen = ref(false)
+const chatTrip = ref(null)
+const chatMessages = ref([])
+const chatText = ref('')
+const isChatLoading = ref(false)
+const isSending = ref(false)
+const chatScrollEl = ref(null)
+const chatBookingId = ref(null)
+const isChatDisabled = ref(false)
+const showPersonalConfirm = ref(false)
+const pendingPersonalText = ref('')
 
 // ---------- Google Maps states ----------
 let gmap = null
@@ -659,6 +848,119 @@ async function fetchMyRoutes() {
     } finally {
         isLoading.value = false
     }
+}
+
+// --- Chat helpers (driver side) ---
+function openChat(trip) {
+    chatTrip.value = trip
+    chatBookingId.value = trip.id
+    isChatOpen.value = true
+    isChatDisabled.value = trip.status === 'completed'
+    chatMessages.value = []
+    chatText.value = ''
+    fetchChatMessages()
+}
+
+function closeChat() {
+    isChatOpen.value = false
+}
+
+async function fetchChatMessages() {
+    if (!chatBookingId.value) return
+    isChatLoading.value = true
+    try {
+        const res = await $api(`/messages/${chatBookingId.value}`)
+        const list = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : []
+        chatMessages.value = list
+        await nextTick()
+        scrollChatToBottom()
+    } catch (err) {
+        console.error('Failed to load messages:', err)
+        toast.error('ไม่สามารถโหลดแชทได้', err?.data?.message || 'กรุณาลองใหม่อีกครั้ง')
+    } finally {
+        isChatLoading.value = false
+    }
+}
+
+function scrollChatToBottom() {
+    if (!chatScrollEl.value) return
+    const el = chatScrollEl.value
+    el.scrollTop = el.scrollHeight
+}
+
+async function handleSend() {
+    if (!chatBookingId.value || !chatText.value.trim() || isSending.value || isChatDisabled.value) return
+
+    const textToSend = chatText.value
+
+    const phonePattern = /\b0\d{8,9}\b/
+    const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+    const hasPersonalInfo = phonePattern.test(textToSend) || emailPattern.test(textToSend)
+
+    if (!showPersonalConfirm.value && hasPersonalInfo) {
+        pendingPersonalText.value = textToSend
+        showPersonalConfirm.value = true
+        return
+    }
+
+    isSending.value = true
+    try {
+        const payload = {
+            text: textToSend,
+            allowPersonalInfo: hasPersonalInfo
+        }
+        const res = await $api(`/messages/${chatBookingId.value}`, {
+            method: 'POST',
+            body: payload
+        })
+        const msg = res?.data || res
+        chatMessages.value.push(msg)
+        chatText.value = ''
+        await nextTick()
+        scrollChatToBottom()
+    } catch (err) {
+        console.error('Failed to send message:', err)
+        const msg =
+            err?.data?.message ||
+            err?.message ||
+            'ไม่สามารถส่งข้อความได้'
+
+        if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO') {
+            pendingPersonalText.value = textToSend
+            showPersonalConfirm.value = true
+        } else {
+            toast.error('ส่งข้อความไม่สำเร็จ', msg)
+        }
+        if (typeof msg === 'string' && msg.includes('Chat is no longer available')) {
+            isChatDisabled.value = true
+        }
+    } finally {
+        isSending.value = false
+    }
+}
+
+async function refreshChat() {
+    await fetchChatMessages()
+}
+
+function formatChatTime(iso) {
+    if (!iso) return ''
+    return dayjs(iso).format('HH:mm น.')
+}
+
+function confirmSendPersonal() {
+    if (!pendingPersonalText.value) {
+        if (!chatText.value.trim()) {
+            showPersonalConfirm.value = false
+            return
+        }
+    } else {
+        chatText.value = pendingPersonalText.value
+        pendingPersonalText.value = ''
+    }
+
+    showPersonalConfirm.value = false
+    handleSend()
 }
 
 const getTripCount = (status) => {

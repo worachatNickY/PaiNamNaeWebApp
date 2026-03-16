@@ -37,6 +37,19 @@ enum BookingStatus {
   COMPLETED           // สิ้นสุดการเดินทาง (ผู้โดยสารรีวิวได้)
 }
 
+// ==================== PBI #10: In-app Messaging ====================
+enum MessageType {
+  TEXT
+  IMAGE
+  LOCATION
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
 enum CancelReason {
   CHANGE_OF_PLAN               // เปลี่ยนแผน/มีธุระกะทันหัน
   FOUND_ALTERNATIVE            // พบวิธีเดินทางอื่นแล้ว
@@ -267,6 +280,9 @@ model Booking {
   reports         DriverReport[]
   // PBI #15: Reviews (one review per passenger per booking)
   reviews         Review[]
+
+  // PBI #10: In-app Messaging between driver and passenger
+  messages        Message[]
 }
 
 // ==================== PBI #15: Ride Reviews ====================
@@ -287,6 +303,33 @@ model Review {
   @@index([driverId])
   @@index([passengerId])
   @@index([bookingId])
+  @@index([createdAt])
+}
+
+// ==================== PBI #10: In-app Messaging ====================
+model Message {
+  id          String        @id @default(cuid())
+
+  bookingId   String
+  booking     Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  senderId    String
+  receiverId  String
+
+  type        MessageType   @default(TEXT)
+  text        String?
+
+  // Optional media support (for future image/location extension)
+  mediaUrl    String?
+  latitude    Float?
+  longitude   Float?
+
+  status      MessageStatus @default(SENT)
+  createdAt   DateTime      @default(now())
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@index([receiverId])
   @@index([createdAt])
 }
 
