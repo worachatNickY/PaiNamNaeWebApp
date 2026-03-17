@@ -380,10 +380,13 @@
                                         สิ้นสุดการเดินทาง
                                     </button>
 
+                                    <!-- COMPLETED: ดูประวัติแชท (อ่านอย่างเดียว) -->
                                     <template v-else-if="trip.status === 'completed'">
                                         <button
-                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
-                                            แชทกับผู้โดยสาร
+                                            @click.stop="openChat(trip)"
+                                            class="px-4 py-2 text-sm text-blue-700 transition duration-200 border border-blue-200 bg-blue-50 rounded-md hover:bg-blue-100"
+                                        >
+                                            ดูประวัติแชท
                                         </button>
                                     </template>
 
@@ -494,9 +497,45 @@
                                     ? 'bg-blue-600 text-white rounded-br-sm'
                                     : 'bg-white text-gray-900 rounded-bl-sm border border-gray-100'"
                             >
-                                <p class="whitespace-pre-wrap break-words">
-                                    {{ msg.text }}
-                                </p>
+                                <template v-if="!msg.type || msg.type === 'TEXT'">
+                                    <p class="whitespace-pre-wrap break-words">
+                                        {{ msg.text }}
+                                    </p>
+                                </template>
+                                <template v-else-if="msg.type === 'IMAGE'">
+                                    <div class="space-y-2">
+                                        <img
+                                            :src="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                            alt="image"
+                                            class="max-h-56 w-full rounded-xl object-cover border border-white/20"
+                                        />
+                                        <a
+                                            :href="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                            target="_blank"
+                                            rel="noopener"
+                                            class="inline-flex text-xs font-medium underline underline-offset-2"
+                                            :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-blue-600'"
+                                        >
+                                            เปิดรูปภาพ
+                                        </a>
+                                    </div>
+                                </template>
+                                <template v-else-if="msg.type === 'LOCATION'">
+                                    <div class="space-y-2">
+                                        <p class="text-sm font-medium">
+                                            แชร์ตำแหน่ง
+                                        </p>
+                                        <a
+                                            :href="googleMapsLink(msg.latitude, msg.longitude)"
+                                            target="_blank"
+                                            rel="noopener"
+                                            class="inline-flex text-xs font-medium underline underline-offset-2"
+                                            :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-blue-600'"
+                                        >
+                                            เปิดใน Google Maps ({{ formatLatLng(msg.latitude, msg.longitude) }})
+                                        </a>
+                                    </div>
+                                </template>
                                 <p
                                     class="mt-1 text-[10px]"
                                     :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'"
@@ -517,6 +556,66 @@
                         v-else
                         class="flex items-end gap-1.5"
                     >
+                        <input
+                            ref="imageInputEl"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                            @change="onPickImageFile"
+                        />
+                        <button
+                            type="button"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                            title="แชร์ตำแหน่ง"
+                            @click="onClickShareLocation"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true">
+                                <path
+                                    d="M12 21s7-4.35 7-11a7 7 0 10-14 0c0 6.65 7 11 7 11z"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M12 13.25a3.25 3.25 0 110-6.5 3.25 3.25 0 010 6.5z"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </button>
+                        <button
+                            type="button"
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                            title="ส่งรูปภาพ"
+                            @click="onClickPickImage"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true">
+                                <path
+                                    d="M4.75 6.75A2 2 0 016.75 4.75h10.5a2 2 0 012 2v10.5a2 2 0 01-2 2H6.75a2 2 0 01-2-2V6.75z"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M8.25 10a1.25 1.25 0 102.5 0 1.25 1.25 0 00-2.5 0z"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                                <path
+                                    d="M5.75 17.25l5.25-5.25 3.25 3.25 1.5-1.5 3.5 3.5"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </button>
                         <textarea
                             v-model="chatText"
                             rows="1"
@@ -538,36 +637,67 @@
             </div>
         </div>
 
-        <!-- Confirm sending personal info (Driver) -->
+        <!-- Confirm sending personal info / media / location (Driver) -->
         <div
-            v-if="showPersonalConfirm"
+            v-if="showPrivacyConfirm"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            @click.self="cancelPrivacyConfirm"
         >
             <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl p-5">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                    ยืนยันการส่งข้อมูลติดต่อส่วนตัว
+                    ยืนยันการส่งเนื้อหาที่อาจเป็นข้อมูลส่วนบุคคล
                 </h3>
                 <p class="text-sm text-gray-600 mb-3">
-                    ระบบตรวจพบว่าในข้อความของคุณมีเบอร์โทรศัพท์หรืออีเมล ซึ่งอาจเป็นข้อมูลส่วนตัว
-                    คุณแน่ใจหรือไม่ว่าต้องการส่งข้อความนี้ให้ผู้โดยสาร?
+                    การส่งข้อความ/สื่อของคุณอาจมีข้อมูลส่วนบุคคล (เช่น เบอร์โทร, อีเมล, ที่อยู่, รูปภาพ หรือพิกัด)
+                    คุณยังยืนยันที่จะส่งหรือไม่?
                 </p>
-                <div class="max-h-32 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 mb-4 whitespace-pre-wrap break-words">
-                    {{ pendingPersonalText }}
+                <button
+                    type="button"
+                    class="mb-3 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200"
+                    @click="showPrivacyDetails = !showPrivacyDetails"
+                >
+                    <span>{{ showPrivacyDetails ? 'ซ่อนรายละเอียด' : 'ดูรายละเอียด' }}</span>
+                </button>
+
+                <div v-if="showPrivacyDetails" class="mb-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-700 space-y-1">
+                    <p class="font-medium text-gray-800">ทำไมถึงมีการเตือนนี้?</p>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>เพื่อช่วยลดการเปิดเผยข้อมูลติดต่อ/ข้อมูลระบุตัวตนในแชท</li>
+                        <li>หากจำเป็นต้องแชร์ ให้ยืนยันก่อนส่งทุกครั้ง (หรือกดไม่ต้องเตือนในทริปนี้)</li>
+                    </ul>
                 </div>
+
+                <div
+                    v-if="privacyPreviewText"
+                    class="max-h-32 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 mb-3 whitespace-pre-wrap break-words"
+                >
+                    {{ privacyPreviewText }}
+                </div>
+
+                <label class="flex items-start gap-2 mb-4 select-none">
+                    <input
+                        v-model="dontWarnAgainThisTrip"
+                        type="checkbox"
+                        class="mt-0.5 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span class="text-xs text-gray-700">
+                        ฉันเข้าใจแล้ว และจะไม่แจ้งเตือนอีกจนกว่าจะเข้าสู่การเดินทางใหม่
+                    </span>
+                </label>
                 <div class="flex justify-end gap-2">
                     <button
                         type="button"
                         class="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
-                        @click="showPersonalConfirm = false"
+                        @click="cancelPrivacyConfirm"
                     >
-                        ไม่ส่ง
+                        ยกเลิก
                     </button>
                     <button
                         type="button"
                         class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
-                        @click="confirmSendPersonal"
+                        @click="confirmPrivacyAndSend"
                     >
-                        ยืนยันส่ง
+                        ใช่ ฉันต้องการจะส่ง
                     </button>
                 </div>
             </div>
@@ -591,7 +721,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/th'
 import buddhistEra from 'dayjs/plugin/buddhistEra'
@@ -606,6 +736,7 @@ const { $api } = useNuxtApp()
 const { toast } = useToast()
 const { user } = useAuth()
 const currentUserId = computed(() => user.value?.id || null)
+const config = useRuntimeConfig()
 
 // --- State Management ---
 const activeTab = ref('pending')
@@ -625,8 +756,65 @@ const isSending = ref(false)
 const chatScrollEl = ref(null)
 const chatBookingId = ref(null)
 const isChatDisabled = ref(false)
-const showPersonalConfirm = ref(false)
-const pendingPersonalText = ref('')
+const showPrivacyConfirm = ref(false)
+const showPrivacyDetails = ref(false)
+const privacyPreviewText = ref('')
+const dontWarnAgainThisTrip = ref(false)
+const pendingPrivacyAction = ref(null)
+const confirmedContentKeys = ref(new Set())
+const imageInputEl = ref(null)
+
+function privacySuppressKey(bookingId) {
+    return bookingId ? `chat_privacy_suppress:${bookingId}` : null
+}
+function privacyConfirmedKey(bookingId) {
+    return bookingId ? `chat_privacy_confirmed:${bookingId}` : null
+}
+function makeContentKey(kind, content) {
+    const input = `${kind}:${content ?? ''}`
+    let hash = 5381
+    for (let i = 0; i < input.length; i++) hash = ((hash << 5) + hash) ^ input.charCodeAt(i)
+    return `k${(hash >>> 0).toString(36)}`
+}
+function loadPrivacyPrefsForTrip(bookingId) {
+    if (!process.client || !bookingId) return
+    try {
+        const sup = sessionStorage.getItem(privacySuppressKey(bookingId))
+        dontWarnAgainThisTrip.value = sup === '1'
+        const raw = sessionStorage.getItem(privacyConfirmedKey(bookingId))
+        const arr = raw ? JSON.parse(raw) : []
+        confirmedContentKeys.value = new Set(Array.isArray(arr) ? arr : [])
+    } catch {
+        // ignore
+    }
+}
+function persistPrivacyPrefsForTrip(bookingId) {
+    if (!process.client || !bookingId) return
+    try {
+        sessionStorage.setItem(privacySuppressKey(bookingId), dontWarnAgainThisTrip.value ? '1' : '0')
+        sessionStorage.setItem(privacyConfirmedKey(bookingId), JSON.stringify(Array.from(confirmedContentKeys.value)))
+    } catch {
+        // ignore
+    }
+}
+
+function toAbsoluteMediaUrl(p) {
+    if (!p) return ''
+    if (typeof p !== 'string') return ''
+    if (/^https?:\/\//i.test(p)) return p
+    const apiBase = String(config.public?.apiBase || '')
+    const base = apiBase.replace(/\/api\/?$/i, '/')
+    const path = p.startsWith('/') ? p.slice(1) : p
+    return `${base}${path}`
+}
+function googleMapsLink(lat, lng) {
+    if (typeof lat !== 'number' || typeof lng !== 'number') return '#'
+    return `https://www.google.com/maps?q=${lat},${lng}`
+}
+function formatLatLng(lat, lng) {
+    if (typeof lat !== 'number' || typeof lng !== 'number') return ''
+    return `${lat.toFixed(5)}, ${lng.toFixed(5)}`
+}
 
 // ---------- Google Maps states ----------
 let gmap = null
@@ -858,6 +1046,11 @@ function openChat(trip) {
     isChatDisabled.value = trip.status === 'completed'
     chatMessages.value = []
     chatText.value = ''
+    showPrivacyConfirm.value = false
+    pendingPrivacyAction.value = null
+    showPrivacyDetails.value = false
+    privacyPreviewText.value = ''
+    loadPrivacyPrefsForTrip(trip.id)
     fetchChatMessages()
 }
 
@@ -897,12 +1090,21 @@ async function handleSend(forceAllowPersonal = false) {
     // จับชุดตัวเลข 9–10 หลัก (เช่น เบอร์โทรส่วนใหญ่)
     const phonePattern = /\d{9,10}/
     const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
-    const hasPersonalInfo = phonePattern.test(textToSend) || emailPattern.test(textToSend)
+    const addressPattern = /(ที่อยู่|เลขที่|ถนน|ซอย|หมู่|ต\.|อ\.|จ\.|แขวง|เขต|ตำบล|อำเภอ|จังหวัด)/i
+    const hasPersonalInfo = phonePattern.test(textToSend) || emailPattern.test(textToSend) || addressPattern.test(textToSend)
+    const contentKey = makeContentKey('text', textToSend)
 
     // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อน
-    if (!forceAllowPersonal && hasPersonalInfo) {
-        pendingPersonalText.value = textToSend
-        showPersonalConfirm.value = true
+    const shouldPrompt =
+        !forceAllowPersonal &&
+        hasPersonalInfo &&
+        !dontWarnAgainThisTrip.value &&
+        !confirmedContentKeys.value.has(contentKey)
+    if (shouldPrompt) {
+        privacyPreviewText.value = textToSend
+        pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo }
+        showPrivacyDetails.value = false
+        showPrivacyConfirm.value = true
         return
     }
 
@@ -911,7 +1113,7 @@ async function handleSend(forceAllowPersonal = false) {
         const payload = {
             text: textToSend,
             // ถ้าเป็นรอบที่กดยืนยันแล้วเท่านั้นจึงส่ง allowPersonalInfo = true
-            allowPersonalInfo: forceAllowPersonal && hasPersonalInfo
+            allowPersonalInfo: (forceAllowPersonal || dontWarnAgainThisTrip.value || confirmedContentKeys.value.has(contentKey)) && hasPersonalInfo
         }
         const res = await $api(`/messages/${chatBookingId.value}`, {
             method: 'POST',
@@ -931,8 +1133,10 @@ async function handleSend(forceAllowPersonal = false) {
 
         // กรณี backend ตรวจเจอข้อมูลส่วนตัวซ้ำ (กันพลาด) และยังไม่ได้ forceAllowPersonal
         if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO' && !forceAllowPersonal) {
-            pendingPersonalText.value = textToSend
-            showPersonalConfirm.value = true
+            privacyPreviewText.value = textToSend
+            pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo: true }
+            showPrivacyDetails.value = false
+            showPrivacyConfirm.value = true
         } else {
             toast.error('ส่งข้อความไม่สำเร็จ', msg)
         }
@@ -944,6 +1148,116 @@ async function handleSend(forceAllowPersonal = false) {
     }
 }
 
+async function sendLocationNow({ latitude, longitude }) {
+    if (!chatBookingId.value || isChatDisabled.value) return
+    isSending.value = true
+    try {
+        const res = await $api(`/messages/${chatBookingId.value}/location`, {
+            method: 'POST',
+            body: { latitude, longitude }
+        })
+        const msg = res?.data || res
+        chatMessages.value.push(msg)
+        await nextTick()
+        scrollChatToBottom()
+    } catch (err) {
+        console.error('Failed to send location:', err)
+        const m = err?.data?.message || err?.message || 'ไม่สามารถส่งตำแหน่งได้'
+        toast.error('ส่งตำแหน่งไม่สำเร็จ', m)
+        if (typeof m === 'string' && m.includes('Chat is no longer available')) {
+            isChatDisabled.value = true
+        }
+    } finally {
+        isSending.value = false
+    }
+}
+
+async function sendImageNow(file) {
+    if (!chatBookingId.value || isChatDisabled.value || !file) return
+    isSending.value = true
+    try {
+        const fd = new FormData()
+        fd.append('image', file)
+        const res = await $api(`/messages/${chatBookingId.value}/image`, {
+            method: 'POST',
+            body: fd
+        })
+        const msg = res?.data || res
+        chatMessages.value.push(msg)
+        await nextTick()
+        scrollChatToBottom()
+    } catch (err) {
+        console.error('Failed to send image:', err)
+        const m = err?.data?.message || err?.message || 'ไม่สามารถส่งรูปภาพได้'
+        toast.error('ส่งรูปภาพไม่สำเร็จ', m)
+        if (typeof m === 'string' && m.includes('Chat is no longer available')) {
+            isChatDisabled.value = true
+        }
+    } finally {
+        isSending.value = false
+    }
+}
+
+function onClickPickImage() {
+    if (isChatDisabled.value) return
+    imageInputEl.value?.click?.()
+}
+
+function onPickImageFile(e) {
+    const file = e?.target?.files?.[0]
+    if (e?.target) e.target.value = ''
+    if (!file) return
+
+    // รูปภาพ/ตำแหน่ง: ให้ถามทุกครั้ง ยกเว้นผู้ใช้ติ๊ก "ไม่ต้องเตือนในทริปนี้"
+    const fingerprint = `${file.name}:${file.size}:${file.lastModified}`
+    const key = makeContentKey('image', fingerprint)
+
+    const shouldPrompt = !dontWarnAgainThisTrip.value
+    if (shouldPrompt) {
+        privacyPreviewText.value = `รูปภาพ: ${file.name} (${Math.round(file.size / 1024)} KB)`
+        pendingPrivacyAction.value = { kind: 'image', file, contentKey: key }
+        showPrivacyDetails.value = false
+        showPrivacyConfirm.value = true
+        return
+    }
+
+    sendImageNow(file)
+}
+
+function onClickShareLocation() {
+    if (isChatDisabled.value) return
+    if (!navigator?.geolocation) {
+        toast.error('ไม่รองรับ', 'อุปกรณ์/เบราว์เซอร์นี้ไม่รองรับการแชร์ตำแหน่ง')
+        return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const latitude = Number(pos.coords.latitude)
+            const longitude = Number(pos.coords.longitude)
+            const rounded = `${latitude.toFixed(5)},${longitude.toFixed(5)}`
+            const key = makeContentKey('location', rounded)
+
+            const shouldPrompt = !dontWarnAgainThisTrip.value
+            if (shouldPrompt) {
+                privacyPreviewText.value = `ตำแหน่ง: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
+                pendingPrivacyAction.value = { kind: 'location', latitude, longitude, contentKey: key }
+                showPrivacyDetails.value = false
+                showPrivacyConfirm.value = true
+                return
+            }
+
+            sendLocationNow({ latitude, longitude })
+        },
+        (err) => {
+            const code = err?.code
+            if (code === 1) toast.error('ส่งตำแหน่งไม่สำเร็จ', 'คุณปฏิเสธการอนุญาตตำแหน่ง')
+            else toast.error('ส่งตำแหน่งไม่สำเร็จ', 'ไม่สามารถอ่านตำแหน่งได้ กรุณาลองใหม่')
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    )
+}
+
 async function refreshChat() {
     await fetchChatMessages()
 }
@@ -953,16 +1267,43 @@ function formatChatTime(iso) {
     return dayjs(iso).format('HH:mm น.')
 }
 
-function confirmSendPersonal() {
-    if (!pendingPersonalText.value) {
-        showPersonalConfirm.value = false
+function cancelPrivacyConfirm() {
+    showPrivacyConfirm.value = false
+    pendingPrivacyAction.value = null
+    privacyPreviewText.value = ''
+    showPrivacyDetails.value = false
+    if (chatBookingId.value) persistPrivacyPrefsForTrip(chatBookingId.value)
+}
+
+async function confirmPrivacyAndSend() {
+    if (!pendingPrivacyAction.value) {
+        cancelPrivacyConfirm()
         return
     }
 
-    chatText.value = pendingPersonalText.value
-    pendingPersonalText.value = ''
-    showPersonalConfirm.value = false
-    handleSend(true)
+    if (chatBookingId.value) {
+        // จำเฉพาะ "ข้อความ" ที่เคยยืนยันแล้วให้ส่งซ้ำได้ (รูป/ตำแหน่งจะถามทุกครั้ง ยกเว้นติ๊กไม่เตือน)
+        if (pendingPrivacyAction.value.kind === 'text' && typeof pendingPrivacyAction.value.text === 'string') {
+            const key = makeContentKey('text', pendingPrivacyAction.value.text)
+            confirmedContentKeys.value.add(key)
+        }
+        persistPrivacyPrefsForTrip(chatBookingId.value)
+    }
+
+    const action = pendingPrivacyAction.value
+    showPrivacyConfirm.value = false
+    pendingPrivacyAction.value = null
+    privacyPreviewText.value = ''
+    showPrivacyDetails.value = false
+
+    if (action.kind === 'text') {
+        chatText.value = action.text
+        await handleSend(true)
+    } else if (action.kind === 'image') {
+        await sendImageNow(action.file)
+    } else if (action.kind === 'location') {
+        await sendLocationNow({ latitude: action.latitude, longitude: action.longitude })
+    }
 }
 
 const getTripCount = (status) => {

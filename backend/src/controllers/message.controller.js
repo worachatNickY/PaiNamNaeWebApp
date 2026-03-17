@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const messageService = require('../services/message.service');
+const ApiError = require('../utils/ApiError');
+const { uploadToCloudinary } = require('../utils/cloudinary');
 
 // POST /api/messages/:bookingId - send a text message within an active ride
 const sendMessage = asyncHandler(async (req, res) => {
@@ -36,6 +38,40 @@ const getMessages = asyncHandler(async (req, res) => {
 
 module.exports = {
   sendMessage,
+  sendLocation: asyncHandler(async (req, res) => {
+    const senderId = req.user.sub;
+    const { bookingId } = req.params;
+    const { latitude, longitude } = req.body;
+
+    const message = await messageService.sendLocationMessage(bookingId, senderId, {
+      latitude,
+      longitude,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Location sent successfully',
+      data: message,
+    });
+  }),
+  sendImage: asyncHandler(async (req, res) => {
+    const senderId = req.user.sub;
+    const { bookingId } = req.params;
+
+    const file = req.file;
+    if (!file || !file.buffer) {
+      throw new ApiError(400, 'Image file is required');
+    }
+
+    const uploaded = await uploadToCloudinary(file.buffer, 'painamnae/messages');
+    const message = await messageService.sendImageMessage(bookingId, senderId, uploaded.url);
+
+    res.status(201).json({
+      success: true,
+      message: 'Image sent successfully',
+      data: message,
+    });
+  }),
   getMessages,
 };
 

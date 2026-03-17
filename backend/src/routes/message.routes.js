@@ -4,10 +4,16 @@ const { protect } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const messageController = require('../controllers/message.controller');
 const { z } = require('zod');
+const upload = require('../middlewares/upload.middleware');
 
 const sendMessageSchema = z.object({
   text: z.string().min(1, 'Message cannot be empty'),
   allowPersonalInfo: z.boolean().optional(),
+});
+
+const sendLocationSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
 });
 
 // GET /api/messages/:bookingId - list messages for a booking
@@ -19,6 +25,22 @@ router.post(
   protect,
   validate({ body: sendMessageSchema }),
   messageController.sendMessage
+);
+
+// POST /api/messages/:bookingId/location - send location message
+router.post(
+  '/:bookingId/location',
+  protect,
+  validate({ body: sendLocationSchema }),
+  messageController.sendLocation
+);
+
+// POST /api/messages/:bookingId/image - send image message
+router.post(
+  '/:bookingId/image',
+  protect,
+  upload.single('image'),
+  messageController.sendImage
 );
 
 module.exports = router;

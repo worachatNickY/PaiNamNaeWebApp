@@ -86,6 +86,61 @@ async function sendTextMessage(bookingId, senderId, text, options = {}) {
   return message;
 }
 
+async function sendLocationMessage(bookingId, senderId, { latitude, longitude }) {
+  const { booking, isDriver } = await getBookingForUser(bookingId, senderId);
+  checkRideStatus(booking);
+
+  if (typeof latitude !== 'number' || typeof longitude !== 'number') {
+    throw new ApiError(400, 'Invalid location');
+  }
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    throw new ApiError(400, 'Invalid location');
+  }
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    throw new ApiError(400, 'Invalid location');
+  }
+
+  const receiverId = isDriver ? booking.passengerId : booking.route.driverId;
+
+  const message = await prisma.message.create({
+    data: {
+      bookingId,
+      senderId,
+      receiverId,
+      type: 'LOCATION',
+      latitude,
+      longitude,
+      status: 'SENT',
+    },
+  });
+
+  return message;
+}
+
+async function sendImageMessage(bookingId, senderId, mediaUrl) {
+  const { booking, isDriver } = await getBookingForUser(bookingId, senderId);
+  checkRideStatus(booking);
+
+  if (!mediaUrl || typeof mediaUrl !== 'string') {
+    throw new ApiError(400, 'Invalid image URL');
+  }
+
+  const receiverId = isDriver ? booking.passengerId : booking.route.driverId;
+
+  const message = await prisma.message.create({
+    data: {
+      bookingId,
+      senderId,
+      receiverId,
+      type: 'IMAGE',
+      mediaUrl,
+      status: 'SENT',
+    },
+  });
+
+  return message;
+}
+
 async function listMessages(bookingId, userId) {
   await getBookingForUser(bookingId, userId); // access check
 
@@ -99,6 +154,8 @@ async function listMessages(bookingId, userId) {
 
 module.exports = {
   sendTextMessage,
+  sendLocationMessage,
+  sendImageMessage,
   listMessages,
 };
 
