@@ -816,6 +816,15 @@ function formatLatLng(lat, lng) {
     return `${lat.toFixed(5)}, ${lng.toFixed(5)}`
 }
 
+function hasPhoneLike(text) {
+    if (!text) return false
+    const digits = String(text).replace(/\D/g, '')
+    if (digits.length < 9) return false
+    if (/0\d{8,9}/.test(digits)) return true
+    if (/66\d{8,9}/.test(digits)) return true
+    return false
+}
+
 // ---------- Google Maps states ----------
 let gmap = null
 let activePolyline = null
@@ -1086,12 +1095,8 @@ async function handleSend(forceAllowPersonal = false) {
 
     const textToSend = chatText.value
 
-    // ฝั่งคนขับ: ตรวจข้อมูลส่วนตัวบน frontend ก่อนเหมือนฝั่งผู้โดยสาร
-    // จับชุดตัวเลข 9–10 หลัก (เช่น เบอร์โทรส่วนใหญ่)
-    const phonePattern = /\d{9,10}/
-    const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
-    const addressPattern = /(ที่อยู่|เลขที่|ถนน|ซอย|หมู่|ต\.|อ\.|จ\.|แขวง|เขต|ตำบล|อำเภอ|จังหวัด)/i
-    const hasPersonalInfo = phonePattern.test(textToSend) || emailPattern.test(textToSend) || addressPattern.test(textToSend)
+    // เพื่อกันหลุดทุกเคส: ถือว่าทุกข้อความอาจมีข้อมูลส่วนตัว
+    const hasPersonalInfo = true
     const contentKey = makeContentKey('text', textToSend)
 
     // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อน

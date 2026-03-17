@@ -2,9 +2,17 @@ const prisma = require('../utils/prisma');
 const ApiError = require('../utils/ApiError');
 
 // Simple regex patterns to detect obvious personal info
-// จับชุดตัวเลข 9–10 หลัก (เช่น เบอร์โทรส่วนใหญ่)
-const PHONE_REGEX = /\d{9,10}/;
 const EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
+const ADDRESS_REGEX = /(ที่อยู่|เลขที่|ถนน|ซอย|หมู่|ต\.|อ\.|จ\.|แขวง|เขต|ตำบล|อำเภอ|จังหวัด|road|rd\.|street|st\.|soi|subdistrict|district|province|address)/i;
+
+function hasPhoneLike(text) {
+  if (!text) return false;
+  const digits = String(text).replace(/\D/g, '');
+  if (digits.length < 9) return false;
+  if (/0\d{8,9}/.test(digits)) return true;
+  if (/66\d{8,9}/.test(digits)) return true;
+  return false;
+}
 
 async function getBookingForUser(bookingId, userId) {
   const booking = await prisma.booking.findUnique({
@@ -51,8 +59,10 @@ function validateMessageText(text, { allowPersonalInfo } = { allowPersonalInfo: 
   if (text.length > 1000) {
     throw new ApiError(400, 'Message is too long');
   }
-  if (!allowPersonalInfo && (PHONE_REGEX.test(text) || EMAIL_REGEX.test(text))) {
-    // ให้ frontend แสดง dialog ยืนยันก่อนส่ง
+  // เพื่อกันหลุดทุกเคสใน sprint นี้:
+  // ถ้ายังไม่ได้ยืนยัน allowPersonalInfo ให้บล็อกการส่งข้อความทุกประเภท
+  // แล้วให้ frontend เปิด modal ถามยืนยันก่อน
+  if (!allowPersonalInfo) {
     throw new ApiError(
       400,
       'MESSAGE_CONTAINS_PERSONAL_INFO'
