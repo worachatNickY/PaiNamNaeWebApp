@@ -4,6 +4,8 @@ const ApiError = require('../utils/ApiError');
 // Simple regex patterns to detect obvious personal info
 const EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const ADDRESS_REGEX = /(ที่อยู่|เลขที่|ถนน|ซอย|หมู่|ต\.|อ\.|จ\.|แขวง|เขต|ตำบล|อำเภอ|จังหวัด|road|rd\.|street|st\.|soi|subdistrict|district|province|address)/i;
+// Online IDs / social handles (english + thai, case-insensitive)
+const SOCIAL_REGEX = /(line\s?id|ไลน์|facebook|Facebook|เฟซบุ๊ก|fb\.com|instagram|Instagram|ig\b|ไอจี|tiktok|Tiktok|ติ๊กต็อก|ตต|whatsapp|Whatsapp|line|Line|telegram|Telegram|Discord|disc\w*|discord|@[\w\.]{3,})/i;
 
 function hasPhoneLike(text) {
   if (!text) return false;
@@ -59,10 +61,13 @@ function validateMessageText(text, { allowPersonalInfo } = { allowPersonalInfo: 
   if (text.length > 1000) {
     throw new ApiError(400, 'Message is too long');
   }
-  // เพื่อกันหลุดทุกเคสใน sprint นี้:
-  // ถ้ายังไม่ได้ยืนยัน allowPersonalInfo ให้บล็อกการส่งข้อความทุกประเภท
-  // แล้วให้ frontend เปิด modal ถามยืนยันก่อน
-  if (!allowPersonalInfo) {
+  const hasPhone = hasPhoneLike(text);
+  const hasEmail = EMAIL_REGEX.test(text);
+  const hasAddress = ADDRESS_REGEX.test(text);
+  const hasSocial = SOCIAL_REGEX.test(text);
+
+  // บังคับให้ยืนยันเฉพาะข้อความที่ "มีแนวโน้มเป็นข้อมูลส่วนตัว"
+  if (!allowPersonalInfo && (hasPhone || hasEmail || hasAddress || hasSocial)) {
     throw new ApiError(
       400,
       'MESSAGE_CONTAINS_PERSONAL_INFO'

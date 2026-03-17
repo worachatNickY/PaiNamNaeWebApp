@@ -201,8 +201,10 @@
                                             </h4>
                                             <span v-if="trip.status === 'pending'"
                                                 class="status-badge status-pending">รอดำเนินการ</span>
-                                            <span v-else-if="trip.status === 'confirmed'"
+                                            <span v-else-if="trip.status === 'confirmed' && canDriverChat(trip)"
                                                 class="status-badge status-confirmed">ยืนยันแล้ว</span>
+                                            <span v-else-if="trip.status === 'confirmed' && !canDriverChat(trip)"
+                                                class="status-badge status-expired">เกินเวลาออกเดินทางแล้ว</span>
                                             <span v-else-if="trip.status === 'driver_on_the_way'"
                                                 class="status-badge status-driver-on-the-way">กำลังไปรับ</span>
                                             <span v-else-if="trip.status === 'passenger_picked_up'"
@@ -361,6 +363,33 @@
                                             class="px-4 py-2 text-sm text-white transition duration-200 bg-amber-500 rounded-md hover:bg-amber-600">
                                             กำลังไปรับผู้โดยสาร
                                         </button>
+                                        <span
+                                            v-else
+                                            class="px-4 py-2 text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-md"
+                                        >
+                                            หมดเวลาเริ่มเดินทางแล้ว
+                                        </span>
+                                        <button
+                                            v-if="canDriverChat(trip)"
+                                            @click.stop="openChat(trip)"
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
+                                            แชทกับผู้โดยสาร
+                                        </button>
+                                        <button
+                                            v-else
+                                            @click.stop="openChat(trip, true)"
+                                            class="px-4 py-2 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200 rounded-md hover:bg-gray-200"
+                                        >
+                                            ดูประวัติแชท
+                                        </button>
+                                    </template>
+
+                                    <template v-else-if="trip.status === 'driver_on_the_way'">
+                                        <button
+                                            @click.stop="updateTripPhase(trip, 'PASSENGER_PICKED_UP')"
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-emerald-600 rounded-md hover:bg-emerald-700">
+                                            รับผู้โดยสารแล้ว
+                                        </button>
                                         <button
                                             @click.stop="openChat(trip)"
                                             class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
@@ -368,17 +397,18 @@
                                         </button>
                                     </template>
 
-                                    <button v-else-if="trip.status === 'driver_on_the_way'"
-                                        @click.stop="updateTripPhase(trip, 'PASSENGER_PICKED_UP')"
-                                        class="px-4 py-2 text-sm text-white transition duration-200 bg-emerald-600 rounded-md hover:bg-emerald-700">
-                                        รับผู้โดยสารแล้ว
-                                    </button>
-
-                                    <button v-else-if="trip.status === 'passenger_picked_up'"
-                                        @click.stop="openConfirmModal(trip, 'complete')"
-                                        class="px-4 py-2 text-sm text-white transition duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700">
-                                        สิ้นสุดการเดินทาง
-                                    </button>
+                                    <template v-else-if="trip.status === 'passenger_picked_up'">
+                                        <button
+                                            @click.stop="openConfirmModal(trip, 'complete')"
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-indigo-600 rounded-md hover:bg-indigo-700">
+                                            สิ้นสุดการเดินทาง
+                                        </button>
+                                        <button
+                                            @click.stop="openChat(trip)"
+                                            class="px-4 py-2 text-sm text-white transition duration-200 bg-blue-600 rounded-md hover:bg-blue-700">
+                                            แชทกับผู้โดยสาร
+                                        </button>
+                                    </template>
 
                                     <!-- COMPLETED: ดูประวัติแชท (อ่านอย่างเดียว) -->
                                     <template v-else-if="trip.status === 'completed'">
@@ -429,17 +459,29 @@
                 <!-- Header -->
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-500">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
-                            <img
-                                :src="chatTrip.passenger.image"
-                                :alt="chatTrip.passenger.name"
-                                class="w-10 h-10 rounded-full object-cover"
-                            />
+                        <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500 text-white">
+                                <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4" aria-hidden="true">
+                                    <path
+                                        d="M12 12c2.209 0 4-1.791 4-4s-1.791-4-4-4-4 1.791-4 4 1.791 4 4 4z"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                    <path
+                                        d="M5 20c0-2.761 3.134-5 7-5s7 2.239 7 5"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    />
+                                </svg>
+                            </div>
                         </div>
                         <div class="min-w-0">
-                            <p class="text-[11px] font-medium text-white/80">แชทระหว่างคุณกับผู้โดยสาร</p>
                             <p class="text-sm font-semibold text-white truncate">
-                                {{ chatTrip.passenger.name }}
+                                แชทระหว่างคุณกับผู้โดยสาร
                             </p>
                             <p class="text-[11px] text-blue-100 truncate">
                                 {{ chatTrip.origin }} → {{ chatTrip.destination }} • {{ chatTrip.date }} {{ chatTrip.time }}
@@ -458,12 +500,22 @@
                 <!-- Messages -->
                 <div class="flex-1 min-h-0 bg-gray-50 flex flex-col">
                     <div class="flex items-center justify-between px-3 py-1.5 text-[11px] text-gray-500 border-b border-gray-100 bg-white">
-                        <span v-if="isChatDisabled">
-                            แชทไม่สามารถใช้งานได้หลังจากการเดินทางเสร็จสิ้น
-                        </span>
-                        <span v-else>
-                            ใช้แชทนี้เพื่อประสานงานกับผู้โดยสาร กรุณาอย่าแชร์เบอร์โทรศัพท์หรืออีเมล
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span v-if="isChatDisabled">
+                                แชทไม่สามารถใช้งานได้หลังจากการเดินทางเสร็จสิ้น
+                            </span>
+                            <span v-else>
+                                ใช้แชทนี้เพื่อประสานงานกับผู้โดยสาร กรุณาอย่าแชร์เบอร์โทรศัพท์หรืออีเมล
+                            </span>
+                            <button
+                                type="button"
+                                class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100"
+                                @click="showPrivacyInfo = true"
+                            >
+                                <span class="text-xs">ℹ</span>
+                                <span>ดูรายละเอียดความปลอดภัย</span>
+                            </button>
+                        </div>
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium text-gray-600 bg-gray-100 hover:bg-gray-200"
@@ -501,23 +553,57 @@
                                     <p class="whitespace-pre-wrap break-words">
                                         {{ msg.text }}
                                     </p>
+                                    <p
+                                        v-if="msg.senderId === currentUserId && msg.isSensitive"
+                                        class="mt-0.5 text-[9px] opacity-80"
+                                        :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-gray-400'"
+                                    >
+                                        ข้อความนี้ถูกส่งหลังยืนยันข้อมูลส่วนตัวแล้ว
+                                    </p>
                                 </template>
                                 <template v-else-if="msg.type === 'IMAGE'">
                                     <div class="space-y-2">
-                                        <img
-                                            :src="toAbsoluteMediaUrl(msg.mediaUrl)"
-                                            alt="image"
-                                            class="max-h-56 w-full rounded-xl object-cover border border-white/20"
-                                        />
-                                        <a
-                                            :href="toAbsoluteMediaUrl(msg.mediaUrl)"
-                                            target="_blank"
-                                            rel="noopener"
-                                            class="inline-flex text-xs font-medium underline underline-offset-2"
-                                            :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-blue-600'"
-                                        >
-                                            เปิดรูปภาพ
-                                        </a>
+                                        <template v-if="isImageMedia(msg.mediaUrl)">
+                                            <img
+                                                :src="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                                alt="image"
+                                                class="max-h-56 w-full rounded-xl object-cover border border-white/20"
+                                            />
+                                            <a
+                                                :href="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                                target="_blank"
+                                                rel="noopener"
+                                                class="inline-flex text-xs font-medium underline underline-offset-2"
+                                                :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-blue-600'"
+                                            >
+                                                เปิดรูปภาพ
+                                            </a>
+                                        </template>
+                                        <template v-else-if="isVideoMedia(msg.mediaUrl)">
+                                            <video
+                                                :src="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                                controls
+                                                class="w-full max-h-56 rounded-xl border border-white/20 bg-black"
+                                            ></video>
+                                        </template>
+                                        <template v-else-if="isAudioMedia(msg.mediaUrl)">
+                                            <audio
+                                                :src="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                                controls
+                                                class="w-full"
+                                            ></audio>
+                                        </template>
+                                        <template v-else>
+                                            <a
+                                                :href="toAbsoluteMediaUrl(msg.mediaUrl)"
+                                                target="_blank"
+                                                rel="noopener"
+                                                class="inline-flex text-xs font-medium underline underline-offset-2"
+                                                :class="msg.senderId === currentUserId ? 'text-blue-100' : 'text-blue-600'"
+                                            >
+                                                เปิดไฟล์แนบ
+                                            </a>
+                                        </template>
                                     </div>
                                 </template>
                                 <template v-else-if="msg.type === 'LOCATION'">
@@ -559,7 +645,7 @@
                         <input
                             ref="imageInputEl"
                             type="file"
-                            accept="image/*"
+                            accept="image/*,video/*,audio/*"
                             class="hidden"
                             @change="onPickImageFile"
                         />
@@ -621,13 +707,13 @@
                             rows="1"
                             class="flex-1 resize-none rounded-xl border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                             placeholder="พิมพ์ข้อความของคุณ (ห้ามใส่เบอร์โทรศัพท์หรืออีเมล)..."
-                            @keydown.enter.exact.prevent="handleSend"
+                            @keydown.enter.exact.prevent="() => handleSend()"
                         ></textarea>
                         <button
                             type="button"
                             class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3.5 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
                             :disabled="isSending || !chatText.trim()"
-                            @click="handleSend"
+                            @click="() => handleSend()"
                         >
                             <span v-if="isSending">กำลังส่ง...</span>
                             <span v-else>ส่ง</span>
@@ -703,6 +789,33 @@
             </div>
         </div>
 
+        <!-- Privacy Info Modal (Driver) -->
+        <div
+            v-if="showPrivacyInfo"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            @click.self="showPrivacyInfo = false"
+        >
+            <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                    ข้อมูลเกี่ยวกับความเป็นส่วนตัวของแชทนี้
+                </h3>
+                <ul class="mt-2 mb-4 text-sm text-gray-700 space-y-2 list-disc list-inside">
+                    <li>ระบบจะไม่แสดงชื่อจริง เบอร์โทร หรืออีเมลของผู้โดยสารโดยตรงในหน้าจอแชท</li>
+                    <li>หากคุณพยายามส่งเบอร์โทร อีเมล หรือที่อยู่ ระบบจะแจ้งเตือนทุกครั้งก่อนส่ง</li>
+                    <li>แชทจะถูกปิดเมื่อการเดินทางเสร็จสิ้น เพื่อความปลอดภัยของทั้งคนขับและผู้โดยสาร</li>
+                </ul>
+                <div class="flex justify-end gap-2">
+                    <button
+                        type="button"
+                        class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                        @click="showPrivacyInfo = false"
+                    >
+                        ปิด
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Chat Floating Button (Driver) -->
         <button
             v-if="!isChatOpen && chatTrip"
@@ -763,6 +876,7 @@ const dontWarnAgainThisTrip = ref(false)
 const pendingPrivacyAction = ref(null)
 const confirmedContentKeys = ref(new Set())
 const imageInputEl = ref(null)
+const showPrivacyInfo = ref(false)
 
 function privacySuppressKey(bookingId) {
     return bookingId ? `chat_privacy_suppress:${bookingId}` : null
@@ -807,6 +921,21 @@ function toAbsoluteMediaUrl(p) {
     const path = p.startsWith('/') ? p.slice(1) : p
     return `${base}${path}`
 }
+function isImageMedia(p) {
+    if (!p) return false
+    const url = String(p).toLowerCase()
+    return /\.(png|jpg|jpeg|webp|gif)$/.test(url)
+}
+function isVideoMedia(p) {
+    if (!p) return false
+    const url = String(p).toLowerCase()
+    return /\.(mp4|mov|webm|m4v)$/.test(url)
+}
+function isAudioMedia(p) {
+    if (!p) return false
+    const url = String(p).toLowerCase()
+    return /\.(mp3|wav|m4a|aac|ogg)$/.test(url)
+}
 function googleMapsLink(lat, lng) {
     if (typeof lat !== 'number' || typeof lng !== 'number') return '#'
     return `https://www.google.com/maps?q=${lat},${lng}`
@@ -840,6 +969,7 @@ let stopMarkers = []
 const tabs = [
     { status: 'pending', label: 'รอดำเนินการ' },
     { status: 'confirmed', label: 'ยืนยันแล้ว' },
+    { status: 'expired', label: 'เกินเวลาออกเดินทางแล้ว' },
     { status: 'driver_on_the_way', label: 'กำลังไปรับผู้โดยสาร' },
     { status: 'passenger_picked_up', label: 'รับผู้โดยสารแล้ว' },
     { status: 'completed', label: 'สิ้นสุดการเดินทางแล้ว' },
@@ -876,6 +1006,15 @@ function reasonLabel(v) { return reasonLabelMap[v] || v }
 const filteredTrips = computed(() => {
     if (activeTab.value === 'all') return allTrips.value
     if (activeTab.value === 'myRoutes') return allTrips.value
+
+    if (activeTab.value === 'expired') {
+        return allTrips.value.filter(trip => trip.status === 'confirmed' && !canDriverChat(trip))
+    }
+
+    if (activeTab.value === 'confirmed') {
+        return allTrips.value.filter(trip => trip.status === 'confirmed' && canDriverChat(trip))
+    }
+
     return allTrips.value.filter(trip => trip.status === activeTab.value)
 })
 
@@ -1048,11 +1187,11 @@ async function fetchMyRoutes() {
 }
 
 // --- Chat helpers (driver side) ---
-function openChat(trip) {
+function openChat(trip, readOnly = false) {
     chatTrip.value = trip
     chatBookingId.value = trip.id
     isChatOpen.value = true
-    isChatDisabled.value = trip.status === 'completed'
+    isChatDisabled.value = readOnly || trip.status === 'completed'
     chatMessages.value = []
     chatText.value = ''
     showPrivacyConfirm.value = false
@@ -1093,18 +1232,29 @@ function scrollChatToBottom() {
 async function handleSend(forceAllowPersonal = false) {
     if (!chatBookingId.value || !chatText.value.trim() || isSending.value || isChatDisabled.value) return
 
+    const force = forceAllowPersonal === true
     const textToSend = chatText.value
 
-    // เพื่อกันหลุดทุกเคส: ถือว่าทุกข้อความอาจมีข้อมูลส่วนตัว
-    const hasPersonalInfo = true
+    // ตรวจหา "ข้อมูลส่วนตัว" ในข้อความ: เบอร์โทร, อีเมล, ที่อยู่
+    const digits = String(textToSend).replace(/\D/g, '')
+    const hasPhone =
+        (digits.length >= 9 && /0\d{8,9}/.test(digits)) ||
+        (digits.length >= 10 && /66\d{8,9}/.test(digits))
+
+    const emailPattern = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+    const addressPattern = /(ที่อยู่|เลขที่|ถนน|ซอย|หมู่|ต\.|อ\.|จ\.|แขวง|เขต|ตำบล|อำเภอ|จังหวัด|road|rd\.|street|st\.|soi|subdistrict|district|province|address)/i
+    const socialPattern = /(line\s?id|ไลน์|facebook|เฟซบุ๊ก|fb\.com|instagram|ig\b|ไอจี|tiktok|ติ๊กต็อก|ตต|whatsapp|telegram|disc\w*|discord|@[\w\.]{3,})/i
+    const hasEmail = emailPattern.test(textToSend)
+    const hasAddress = addressPattern.test(textToSend)
+    const hasSocial = socialPattern.test(textToSend)
+
+    const hasPersonalInfo = hasPhone || hasEmail || hasAddress || hasSocial
     const contentKey = makeContentKey('text', textToSend)
 
-    // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อน
+    // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อนทุกครั้ง
     const shouldPrompt =
-        !forceAllowPersonal &&
-        hasPersonalInfo &&
-        !dontWarnAgainThisTrip.value &&
-        !confirmedContentKeys.value.has(contentKey)
+        !force &&
+        hasPersonalInfo
     if (shouldPrompt) {
         privacyPreviewText.value = textToSend
         pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo }
@@ -1117,8 +1267,8 @@ async function handleSend(forceAllowPersonal = false) {
     try {
         const payload = {
             text: textToSend,
-            // ถ้าเป็นรอบที่กดยืนยันแล้วเท่านั้นจึงส่ง allowPersonalInfo = true
-            allowPersonalInfo: (forceAllowPersonal || dontWarnAgainThisTrip.value || confirmedContentKeys.value.has(contentKey)) && hasPersonalInfo
+            // ส่ง allowPersonalInfo = true เฉพาะเมื่อกดยืนยันจาก modal แล้วเท่านั้น
+            allowPersonalInfo: force && hasPersonalInfo
         }
         const res = await $api(`/messages/${chatBookingId.value}`, {
             method: 'POST',
@@ -1137,7 +1287,7 @@ async function handleSend(forceAllowPersonal = false) {
             'ไม่สามารถส่งข้อความได้'
 
         // กรณี backend ตรวจเจอข้อมูลส่วนตัวซ้ำ (กันพลาด) และยังไม่ได้ forceAllowPersonal
-        if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO' && !forceAllowPersonal) {
+        if (typeof msg === 'string' && msg === 'MESSAGE_CONTAINS_PERSONAL_INFO' && !force) {
             privacyPreviewText.value = textToSend
             pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo: true }
             showPrivacyDetails.value = false
@@ -1304,6 +1454,10 @@ async function confirmPrivacyAndSend() {
     if (action.kind === 'text') {
         chatText.value = action.text
         await handleSend(true)
+        const last = chatMessages.value[chatMessages.value.length - 1]
+        if (last && last.senderId === currentUserId.value) {
+            last.isSensitive = true
+        }
     } else if (action.kind === 'image') {
         await sendImageNow(action.file)
     } else if (action.kind === 'location') {
@@ -1314,6 +1468,15 @@ async function confirmPrivacyAndSend() {
 const getTripCount = (status) => {
     if (status === 'all') return allTrips.value.length
     if (status === 'myRoutes') return myRoutes.value.length
+
+    if (status === 'expired') {
+        return allTrips.value.filter(trip => trip.status === 'confirmed' && !canDriverChat(trip)).length
+    }
+
+    if (status === 'confirmed') {
+        return allTrips.value.filter(trip => trip.status === 'confirmed' && canDriverChat(trip)).length
+    }
+
     return allTrips.value.filter(trip => trip.status === status).length
 }
 
@@ -1513,7 +1676,19 @@ const ONE_HOUR_MS = 60 * 60 * 1000
 function canStartPickup(trip) {
     if (!trip.departureTime) return false
     const now = Date.now()
-    return now >= trip.departureTime - ONE_HOUR_MS
+    // อนุญาตให้กดได้เฉพาะในช่วง 1 ชั่วโมง "ก่อนถึงเวลาออกเดินทาง" เท่านั้น
+    // ถ้าเลยเวลาออกเดินทางไปแล้ว (now > departureTime) จะไม่สามารถกดได้
+    return now >= trip.departureTime - ONE_HOUR_MS && now <= trip.departureTime
+}
+
+function canDriverChat(trip) {
+    // ระหว่างกำลังไปรับ และ รับผู้โดยสารแล้ว ให้แชทได้เสมอ
+    if (trip.status === 'driver_on_the_way' || trip.status === 'passenger_picked_up') return true
+
+    if (!trip.departureTime) return true
+    const now = Date.now()
+    // ช่วงก่อนถึงเวลาออกเดินทาง และไม่เกินเวลาออกเดินทาง
+    return now <= trip.departureTime
 }
 
 async function updateTripPhase(trip, status) {
