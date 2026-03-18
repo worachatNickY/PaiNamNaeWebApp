@@ -1,0 +1,372 @@
+{
+  "info": {
+    "name": "Chat API - Test Design",
+  },
+  "item": [
+    {
+      "name": "UAT-CHAT-001: Send Text Message",
+      "item": [
+        {
+          "name": "1. ส่งข้อความแชทปกติ (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Message text is correct\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.text).to.eql(\"สวัสดีครับ ถึงไหนแล้ว\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"สวัสดีครับ ถึงไหนแล้ว\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "text"]
+            }
+          }
+        },
+        {
+          "name": "2. พบข้อมูลเบอร์โทรศัพท์ (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error: MESSAGE_CONTAINS_PERSONAL_INFO\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"MESSAGE_CONTAINS_PERSONAL_INFO\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"โทรมาเบอร์นี้นะ 0812345678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "text"]
+            }
+          }
+        },
+        {
+          "name": "3. พบข้อมูล Line ID (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error: MESSAGE_CONTAINS_PERSONAL_INFO\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"MESSAGE_CONTAINS_PERSONAL_INFO\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"แอดไลน์ id: myline123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "text"]
+            }
+          }
+        },
+        {
+          "name": "4. ส่งข้อความว่างเปล่า (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error: Message cannot be empty\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Message cannot be empty\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "text"]
+            }
+          }
+        },
+        {
+          "name": "5. ผู้ใช้ไม่มีสิทธิ์ในรอบรถนี้ (403 Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"Error: You are not part of this ride\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"You are not part of this ride\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{unauthorized_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"ฮัลโหล\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "text"]
+            }
+          }
+        },
+        {
+          "name": "6. รอบการเดินทางเสร็จสิ้นแล้ว (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error: Ride completed\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.include(\"Chat is no longer available\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"text\": \"ขอบคุณครับ\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{completedBookingId}}/messages/text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{completedBookingId}}", "messages", "text"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UAT-CHAT-002: Send Location Message",
+      "item": [
+        {
+          "name": "1. ส่งพิกัดสถานที่ถูกต้อง (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Type is LOCATION\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.type).to.eql(\"LOCATION\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"latitude\": 13.7563,\n    \"longitude\": 100.5018\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/location",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "location"]
+            }
+          }
+        },
+        {
+          "name": "2. พิกัดไม่อยู่ในขอบเขต (400 Bad Request)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "pm.test(\"Error is Invalid location\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"Invalid location\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"latitude\": 95.0000,\n    \"longitude\": 200.0000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages/location",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages", "location"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "UAT-CHAT-003: List Messages",
+      "item": [
+        {
+          "name": "1. เรียกดูรายการข้อความทั้งหมด (200 OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "2. ผู้ใช้ไม่มีสิทธิ์ดูข้อความรถรอบนี้ (403 Forbidden)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403 Forbidden\", function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "pm.test(\"Error: You are not part of this ride\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.message).to.eql(\"You are not part of this ride\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{unauthorized_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/bookings/{{bookingId}}/messages",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bookings", "{{bookingId}}", "messages"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
