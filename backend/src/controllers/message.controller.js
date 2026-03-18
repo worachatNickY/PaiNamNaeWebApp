@@ -36,6 +36,38 @@ const getMessages = asyncHandler(async (req, res) => {
   });
 });
 
+// GET /api/messages/admin/:bookingId - list messages for a booking (admin only)
+const getMessagesAdmin = asyncHandler(async (req, res) => {
+  const { bookingId } = req.params;
+
+  const { booking, messages } = await messageService.listMessagesAdmin(bookingId);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      booking,
+      messages,
+    },
+  });
+});
+
+// GET /api/messages/admin - list conversations (admin only)
+const listConversationsAdmin = asyncHandler(async (req, res) => {
+  const { page = '1', limit = '20', bookingId } = req.query;
+
+  const result = await messageService.listConversationsAdmin({
+    page,
+    limit,
+    bookingId,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: result.items,
+    pagination: result.pagination,
+  });
+});
+
 module.exports = {
   sendMessage,
   sendLocation: asyncHandler(async (req, res) => {
@@ -73,5 +105,7 @@ module.exports = {
     });
   }),
   getMessages,
+  getMessagesAdmin,
+  listConversationsAdmin,
 };
 

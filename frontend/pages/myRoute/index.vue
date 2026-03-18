@@ -1251,10 +1251,14 @@ async function handleSend(forceAllowPersonal = false) {
     const hasPersonalInfo = hasPhone || hasEmail || hasAddress || hasSocial
     const contentKey = makeContentKey('text', textToSend)
 
-    // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อนทุกครั้ง
+    const suppressed = dontWarnAgainThisTrip.value === true
+
+    // รอบแรก: เจอข้อมูลส่วนตัวและยังไม่กดยืนยัน -> เปิด popup ให้ถามก่อน
+    // แต่ถ้าผู้ใช้เลือก "ไม่ต้องแจ้งเตือนในทริปนี้" แล้ว จะไม่ถามซ้ำ
     const shouldPrompt =
         !force &&
-        hasPersonalInfo
+        hasPersonalInfo &&
+        !suppressed
     if (shouldPrompt) {
         privacyPreviewText.value = textToSend
         pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo }
@@ -1268,7 +1272,7 @@ async function handleSend(forceAllowPersonal = false) {
         const payload = {
             text: textToSend,
             // ส่ง allowPersonalInfo = true เฉพาะเมื่อกดยืนยันจาก modal แล้วเท่านั้น
-            allowPersonalInfo: force && hasPersonalInfo
+            allowPersonalInfo: (force || suppressed) && hasPersonalInfo
         }
         const res = await $api(`/messages/${chatBookingId.value}`, {
             method: 'POST',

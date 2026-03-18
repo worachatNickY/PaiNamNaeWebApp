@@ -167,10 +167,130 @@ async function listMessages(bookingId, userId) {
   return messages;
 }
 
+async function getBookingForAdmin(bookingId) {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      passengerId: true,
+      route: {
+        select: {
+          id: true,
+          driverId: true,
+          departureTime: true,
+          // startLocation/endLocation are Json scalars in this schema
+          startLocation: true,
+          endLocation: true,
+        },
+      },
+    },
+  });
+
+  if (!booking) {
+    throw new ApiError(404, 'Booking not found');
+  }
+
+  return booking;
+}
+
+async function listMessagesAdmin(bookingId) {
+  const booking = await getBookingForAdmin(bookingId);
+  const messages = await prisma.message.findMany({
+    where: { bookingId },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  return { booking, messages };
+}
+
+async function listConversationsAdmin({ page = 1, limit = 20, bookingId } = {}) {
+  const safePage = Math.max(1, parseInt(page, 10) || 1);
+  const safeLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (safePage - 1) * safeLimit;
+
+  // IMPORTANT: Prisma dislikes explicit `where: undefined` on some queries.
+  // Build args conditionally so undefined fields are omitted.
+  const whereClause = bookingId ? { bookingId } : null;
+
+  const [groups, totalGroups] = await Promise.all([
+    prisma.message.groupBy(
+      Object.assign(
+        {
+          by: ['bookingId'],
+          _count: { _all: true },
+          _max: { createdAt: true },
+          orderBy: { _max: { createdAt: 'desc' } },
+          skip,
+          take: safeLimit,
+        },
+        whereClause ? { where: whereClause } : null
+      )
+    ),
+    prisma.message
+      .groupBy(
+        Object.assign(
+          {
+            by: ['bookingId'],
+            _count: { _all: true },
+          },
+          whereClause ? { where: whereClause } : null
+        )
+      )
+      .then((rows) => rows.length),
+  ]);
+
+  const bookingIds = groups.map((g) => g.bookingId);
+  const bookings = bookingIds.length
+    ? await prisma.booking.findMany({
+        where: { id: { in: bookingIds } },
+        select: {
+          id: true,
+          status: true,
+          passengerId: true,
+          route: {
+            select: {
+              driverId: true,
+              departureTime: true,
+              // startLocation/endLocation are Json scalars in this schema
+              startLocation: true,
+              endLocation: true,
+            },
+          },
+        },
+      })
+    : [];
+
+  const bookingById = new Map(bookings.map((b) => [b.id, b]));
+
+  const items = groups.map((g) => {
+    const b = bookingById.get(g.bookingId) || null;
+    return {
+      bookingId: g.bookingId,
+      messageCount: g._count?._all || 0,
+      lastMessageAt: g._max?.createdAt || null,
+      booking: b,
+    };
+  });
+
+  return {
+    items,
+    pagination: {
+      page: safePage,
+      limit: safeLimit,
+      total: totalGroups,
+      totalPages: Math.ceil(totalGroups / safeLimit),
+    },
+  };
+}
+
 module.exports = {
   sendTextMessage,
   sendLocationMessage,
   sendImageMessage,
   listMessages,
+  listMessagesAdmin,
+  listConversationsAdmin,
 };
 

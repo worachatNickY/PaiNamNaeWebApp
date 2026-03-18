@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middlewares/auth');
+const { protect, requireAdmin } = require('../middlewares/auth');
 const validate = require('../middlewares/validate');
 const messageController = require('../controllers/message.controller');
 const { z } = require('zod');
@@ -16,7 +16,12 @@ const sendLocationSchema = z.object({
   longitude: z.number(),
 });
 
-// GET /api/messages/:bookingId - list messages for a booking
+// GET /api/messages/admin/:bookingId - list messages for a booking (admin)
+// NOTE: must be defined before "/:bookingId" to avoid route param collision
+router.get('/admin', protect, requireAdmin, messageController.listConversationsAdmin);
+router.get('/admin/:bookingId', protect, requireAdmin, messageController.getMessagesAdmin);
+
+// GET /api/messages/:bookingId - list messages for a booking (driver/passenger)
 router.get('/:bookingId', protect, messageController.getMessages);
 
 // POST /api/messages/:bookingId - send a text message

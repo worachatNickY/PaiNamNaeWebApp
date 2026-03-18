@@ -1056,12 +1056,14 @@ async function handleSend(forceAllowPersonal = false) {
     const hasPersonalInfo = hasPhone || hasEmail || hasAddress || hasSocial
     const contentKey = makeContentKey('text', textToSend)
 
-    // รอบแรก: ถ้ามีข้อมูลส่วนตัวและยังไม่ได้ยืนยัน -> เปิด modal ถามก่อนทุกครั้ง
+    const suppressed = dontWarnAgainThisTrip.value === true
+
+    // รอบแรก: ถ้ามีข้อมูลส่วนตัวและยังไม่ได้ยืนยัน -> เปิด modal ถามก่อน
+    // แต่ถ้าผู้ใช้เลือก "ไม่ต้องแจ้งเตือนในทริปนี้" แล้ว จะไม่ถามซ้ำ
     const shouldPrompt =
         !force &&
         hasPersonalInfo &&
-        // สำหรับข้อความ text เรา "ไม่จำ" การยืนยัน เพื่อให้ทุกข้อความใหม่ถูกถามซ้ำ
-        true
+        !suppressed
     if (shouldPrompt) {
         privacyPreviewText.value = textToSend
         pendingPrivacyAction.value = { kind: 'text', text: textToSend, hasPersonalInfo }
@@ -1074,7 +1076,8 @@ async function handleSend(forceAllowPersonal = false) {
     try {
         const payload = {
             text: textToSend,
-            allowPersonalInfo: force && hasPersonalInfo
+            // allowPersonalInfo: true เมื่อ (1) ผู้ใช้กดยืนยันใน modal หรือ (2) ผู้ใช้กด "ไม่ต้องเตือนในทริปนี้" แล้ว
+            allowPersonalInfo: (force || suppressed) && hasPersonalInfo
         }
         const res = await $api(`/messages/${chatBookingId.value}`, {
             method: 'POST',
